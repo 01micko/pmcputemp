@@ -30,6 +30,9 @@ cputempfunc() {
 	 if [ ! "$FILE" ];then
 	    FILE=`find /sys/bus/acpi/devices/ -name temp|head -n1`
 	 fi
+	 if [ ! "$FILE" ];then
+	    FILE=`find /sys/devices/platform/ -name 'temp*input'|tail -n1`
+	 fi
 	 if [ ! "$FILE" ];then echo "not working" && exit
 	 fi
 	 echo "${FILE} is written to $TMP"
