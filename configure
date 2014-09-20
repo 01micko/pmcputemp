@@ -69,6 +69,7 @@ all : pmcputemp
 
 pmcputemp : pmcputemp.o about.o
 	\$(CC) -o \$@ \$(LDFLAGS) \$^
+	xgettext --keyword="_" pmcputemp.c about.c -o po/pmcputemp.pot
 $PO_FILES
 
 pmcputemp.o : pmcputemp.c
