@@ -34,7 +34,7 @@ Depends
 Usage
 -----
 Just run `pmcputemp` from the command line, it needs no options. It will attempt 
-to generate a config directory and temprary storage at `$HOME/.tempicon/` at first
+to generate a config directory and temprary storage at `$HOME/.config/pmcputemp` at first
 run. See the script `pmcputemp.sh`. In this directory, `pmcputemprc` should be 
 generated with the path to the cpu temperature file. In the case of multicore
 processors, the first core is the one which is sourced. This is a basic limitation
