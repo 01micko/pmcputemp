@@ -1,0 +1,102 @@
+#!/bin/sh
+#very simple configure script to generate Makefile
+
+#defaults
+GTKFLAGS=gtk+-2.0
+LIBDIR=/lib
+PREFIX=/usr/local
+LOCDIR=/usr/share/locale
+MANDIR=/share/man
+
+#parameters
+while [ $# != 0 ]; do
+	I=1
+	while [ $I -lt `echo $# | wc -c` ]; do
+		case $1 in
+			--prefix*) PREFIX=`echo $1|cut -d '=' -f2`;;
+			--libdir*) LIBDIR=`echo $1|cut -d '=' -f2`;;
+			--mandir*) MANDIR=`echo $1|cut -d '=' -f2`;;
+			--with-gtk3)GTKFLAGS=gtk+-3.0;;
+			-h|--help)	echo '
+  -h|--help    show this help
+  --prefix=/dir	set installation path : default /usr/local
+  --libdir=/dir	set lib dir : eg: --libdir=/lib64, default is '$PREFIX'/lib
+  --mandir=/dir	set man dir : eg: --mandir=/man, default is '$PREFIX'/share/man
+  --with-gtk3	enables gtk+-3.0 : default is gtk+-2.0'
+				exit;;
+			
+		esac
+		shift
+		I=$(($I+1))
+	done
+done
+
+for p in `ls po|grep po$` #eg p=fr.po
+do loc=${p%%.*}
+PO_FILES=${PO_FILES}"
+	msgfmt po/$loc.po -o po/$loc.gmo"
+PO_DIR=${PO_DIR}"
+	install -d -m 0755 \$(LOCDIR)/$loc/LC_MESSAGES/"
+PO_INSTALL=${PO_INSTALL}"
+	install -m 644 po/$loc.gmo \$(LOCDIR)/$loc/LC_MESSAGES/pmcputemp.mo"
+PO_UNINSTALL=${PO_UNINSTALL}"
+	rm -f \$(LOCDIR)/$loc/LC_MESSAGES/pmcputemp.mo"
+done
+
+echo -n "checking for gcc...	"
+if [ "$?" -ne 127 ];then  echo "ok" 
+  else echo -e "not found \naborting" && exit
+fi
+echo
+echo "======================="
+echo "prefix:	PREFIX="$PREFIX"
+libdir: LIBDIR="${PREFIX}${LIBDIR}"
+mandir: MANDIR="${PREFIX}${MANDIR}""
+[ "$GTKFLAGS" = "gtk+-2.0" ] && echo "GTKFLAGS:	gtk+-2.0" ||\
+echo "GTKFLAGS:	$GTKFLAGS"
+
+cat > Makefile << _MAKE
+CC=gcc
+PREFIX=\$(DESTDIR)$PREFIX
+LIBDIR=\$(DESTDIR)\$(PREFIX)${LIBDIR}
+MANDIR=\$(DESTDIR)\$(PREFIX)${MANDIR}
+LOCDIR=\$(DESTDIR)$LOCDIR
+GTKFLAGS=${GTKFLAGS}
+CFLAGS=-Wall -pedantic -std=gnu99 -g -I/usr/include \`pkg-config --libs --cflags \$(GTKFLAGS) cairo\`
+LDFLAGS=-Wall -g \`pkg-config --libs \$(GTKFLAGS) cairo\` -L\$(LIBDIR) -lX11
+
+all : pmcputemp
+
+pmcputemp : pmcputemp.o about.o
+	\$(CC) -o \$@ \$(LDFLAGS) \$^
+$PO_FILES
+
+pmcputemp.o : pmcputemp.c
+	\$(CC) -o \$@ \$(CFLAGS) -c \$^
+
+about.o : about.c
+	\$(CC) -o \$@ \$(CFLAGS) -c \$^
+	
+install:
+	install -d -m 0755 \$(PREFIX)/bin
+	install -d -m 0755 \$(MANDIR)/man1
+$PO_DIR
+	install -s -m 755 pmcputemp \$(PREFIX)/bin/
+	install -m 755 pmcputemp.sh \$(PREFIX)/bin/
+	install -m 644 pmcputemp.1 \$(MANDIR)/man1/pmcputemp.1
+$PO_INSTALL
+
+clean:
+	-rm -f *.o pmcputemp po/*gmo
+
+distclean:
+
+	rm -f Makefile
+
+uninstall:
+
+	rm -f \$(PREFIX)/bin/pmcputemp
+	rm -f \$(MANDIR)/man1/pmcputemp.1
+$PO_UNINSTALL
+
+_MAKE

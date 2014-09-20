@@ -1,0 +1,43 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-09-19 23:24+1000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: pmcputemp.c:68
+#, c-format
+msgid ""
+"Unable to open configuration file.\n"
+"An attempt has been made to create one. Please try again.\n"
+msgstr ""
+"Impossibile aprire il file di configurazione.\n"
+"Un tentativo è stato fatto per creare uno . Riprova.\n"
+
+#: pmcputemp.c:182
+msgid "About"
+msgstr "Riguardo"
+
+#: pmcputemp.c:188
+msgid "Quit"
+msgstr "Cessare"
+
+#: pmcputemp.c:208
+msgid "CPU temperature"
+msgstr "Temperatura della CPU"
+
+#: about.c:22
+msgid "A simple tray cpu temperature monitor"
+msgstr "Un semplice controllo della temperatura cpu"
