@@ -32,9 +32,9 @@
 #include "about.h"
 
 #define _GNU_SOURCE
-#define ICON ".tempicon/temp.png"
-#define CONFDIR ".tempicon"
-#define CONF ".tempicon/pcutemprc"
+#define ICON ".config/pmcputemp/temp.png"
+#define CONFDIR ".config/pmcputemp"
+#define CONF ".config/pmcputemp/pcutemprc"
 #define _(STRING)    gettext(STRING)
 
 char temp_icon[128];
@@ -53,9 +53,10 @@ FILE *ft;
 const char *home;
 GError *gerror = NULL;
 
-void mk_conf() {
+int mk_conf() {
 	/* script to setup system temperature location */
-	system("sh pmcputemp.sh"); 
+	int ret_val = system("sh pmcputemp.sh");
+	return ret_val;
 }
 
 int cpu_temp() {
@@ -63,31 +64,42 @@ int cpu_temp() {
 	conf[128] = sprintf(conf, "%s/%s", home, CONF);
 	char temp_file[128];
 	char temp_file_out[128];
-	fp = fopen(conf, "r");
-	if ( fp == NULL ) {
-		mk_conf();
-		fprintf(stdout, _("Unable to open configuration file.\nAn attempt"
-			" has been made to create one. Please try again.\n"));
-		exit (0); /* see pmcputemp.sh */
-	}
-	if (fgets(temp_file, sizeof(temp_file), fp) != NULL) {
-		temp_file_out[128] = sprintf(temp_file_out, "%s", temp_file);
-	} else {
-		fprintf(stderr, "file is empty\n");
-		exit (1);
-	}
-	fclose(fp);
-	
+	int ret_try;
 	int temp_val;
-	ft = fopen(temp_file_out, "r");
-	if (ft == NULL) {
-		fprintf(stderr, "can't open file\n");
-		exit (1);
+	while (1) {
+		fp = fopen(conf, "r");
+		if ( fp == NULL ) {
+			ret_try = mk_conf();
+			if (ret_try != 0) {
+				fprintf(stdout, _("Unable to create configuration file."));
+				exit (1); /* kill it */
+			} else {
+				fprintf(stdout, _("An attempt has been made to create " 
+							"a configuration file\n"));
+					continue;
+			}
+		}
+		if (fgets(temp_file, sizeof(temp_file), fp) != NULL) {
+			temp_file_out[128] = sprintf(temp_file_out, "%s", temp_file);
+		} else {
+			fprintf(stderr, _("File is empty, trying again\n"));
+			continue;
+		}
+		fclose(fp);
+	
+		ft = fopen(temp_file_out, "r");
+		if (ft == NULL) {
+			fprintf(stderr, _("Can't open configured file, deleting "
+												"configuration file\n"));
+			unlink(conf);
+			continue;
+		}
+		while(!feof(ft)) {
+			fscanf(ft, "%d", &temp_val);
+		}
+		fclose(ft);
+		break;
 	}
-	while(!feof(ft)) {
-		fscanf(ft, "%d", &temp_val);
-	}
-	fclose(ft);	
 	int temperature = temp_val / 1000;
 	return temperature;
 }

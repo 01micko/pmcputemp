@@ -1,6 +1,6 @@
 #!/bin/sh
 
-TMP=~/.tempicon
+TMP=~/.config/pmcputemp
 KV=`uname -r`
 [ "${KV:2:1}" -lt 7 ] && HorT=head || HorT=tail
 load_module_func() {
@@ -20,24 +20,26 @@ load_module_func() {
 				continue
 			fi
 		done
-	[ "$L" = "1" ] && echo "Can't load a temperature module" && exit
+	[ "$L" = "1" ] && echo "Can't load a temperature module" && return 1
 	fi
 	return 0
 }
 cputempfunc() {
-     [ ! -d $TMP ] && mkdir $TMP
-	 FILE=`find /sys/devices/ -name temp1_input|${HorT} -n1`
-	 if [ ! "$FILE" ];then
-	    FILE=`find /sys/bus/acpi/devices/ -name temp|head -n1`
-	 fi
-	 if [ ! "$FILE" ];then
-	    FILE=`find /sys/devices/platform/ -name 'temp*input'|tail -n1`
-	 fi
-	 if [ ! "$FILE" ];then echo "not working" && exit
-	 fi
-	 echo "${FILE} is written to $TMP"
-	 echo -n ${FILE} > $TMP/pcutemprc
+	load_module_func
+	[ $? -ne 0 ] && exit 1
+	[ ! -d $TMP ] && mkdir $TMP
+	FILE=`find /sys/devices/ -name temp1_input|${HorT} -n1`
+	if [ ! "$FILE" ];then
+		FILE=`find /sys/bus/acpi/devices/ -name temp|head -n1`
+	fi
+	if [ ! "$FILE" ];then
+		FILE=`find /sys/devices/platform/ -name 'temp*input'|tail -n1`
+	fi
+	if [ ! "$FILE" ];then echo "Failed to find file" && exit 1
+	fi
+	echo "${FILE} is written to $TMP"
+	echo -n ${FILE} > $TMP/pcutemprc
 	 
 }
-load_module_func
+
 cputempfunc
