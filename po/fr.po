@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-09-19 23:24+1000\n"
+"POT-Creation-Date: 2014-09-21 06:14+1000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,24 +17,35 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: pmcputemp.c:68
+#: pmcputemp.c:74
 #, c-format
-msgid ""
-"Unable to open configuration file.\n"
-"An attempt has been made to create one. Please try again.\n"
-msgstr ""
-"Impossible d'ouvrir le fichier de configuration.\n"
-"Une tentative a été faite pour en créer un. S'il vous plaît essayez de nouveau.\n"
+msgid "Unable to create configuration file."
+msgstr "Impossible de créer le fichier de configuration."
 
-#: pmcputemp.c:182
+#: pmcputemp.c:77
+#, c-format
+msgid "An attempt has been made to create a configuration file\n"
+msgstr "Une tentative a été faite pour créer un fichier de configuration\n"
+
+#: pmcputemp.c:85
+#, c-format
+msgid "File is empty, trying again\n"
+msgstr "Le fichier est vide , d'essayer à nouveau\n"
+
+#: pmcputemp.c:92
+#, c-format
+msgid "Can't open configured file, deleting configuration file\n"
+msgstr "Vous ne pouvez pas ouvrir le fichier configuré , la suppression du fichier de configuration\n"
+
+#: pmcputemp.c:201
 msgid "About"
 msgstr "Au sujet de"
 
-#: pmcputemp.c:188
+#: pmcputemp.c:207
 msgid "Quit"
 msgstr "Quitter"
 
-#: pmcputemp.c:208
+#: pmcputemp.c:227
 msgid "CPU temperature"
 msgstr "La température du CPU"
 
