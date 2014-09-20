@@ -71,7 +71,7 @@ int cpu_temp() {
 		if ( fp == NULL ) {
 			ret_try = mk_conf();
 			if (ret_try != 0) {
-				fprintf(stdout, _("Unable to create configuration file."));
+				fprintf(stdout, _("Unable to create configuration file.\n"));
 				exit (1); /* kill it */
 			} else {
 				fprintf(stdout, _("An attempt has been made to create " 

@@ -19,8 +19,8 @@ msgstr ""
 
 #: pmcputemp.c:74
 #, c-format
-msgid "Unable to create configuration file."
-msgstr "Impossible de créer le fichier de configuration."
+msgid "Unable to create configuration file.\n"
+msgstr "Impossible de créer le fichier de configuration.\n"
 
 #: pmcputemp.c:77
 #, c-format
