@@ -27,9 +27,9 @@ Some basic options to `configure` are provided. Run `configure --help`
 
 Depends
 -------
-Cairo
-Gtk+ >= 2.0 (not yet stested in Gtk+-3.0)
-Xlib
+- Cairo
+- Gtk+ >= 2.0 (works in Gtk+-3.0, but needs adjustment for missing icons)
+- Xlib
 
 Usage
 -----
