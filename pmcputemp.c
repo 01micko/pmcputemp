@@ -71,7 +71,7 @@ int cpu_temp() {
 		if ( fp == NULL ) {
 			ret_try = mk_conf();
 			if (ret_try != 0) {
-				fprintf(stdout, _("Unable to create configuration file.\n"));
+				fprintf(stderr, _("Unable to create configuration file.\n"));
 				exit (1); /* kill it */
 			} else {
 				fprintf(stdout, _("An attempt has been made to create " 
@@ -116,7 +116,7 @@ int paint_icon() {
 
 	float r1, g1, b1, r2, g2, b2;
 	if (temp < 40 ) {
-r1 = 0.4; r2 = 0.2;
+		r1 = 0.4; r2 = 0.2;
 		g1 = 0.9; g2 = 0.7;
 		b1 = 0.9; b2 = 0.7;
 	}
