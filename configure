@@ -68,7 +68,7 @@ LDFLAGS=-Wall -g \`pkg-config --libs \$(GTKFLAGS) cairo\` -L\$(LIBDIR) -lX11
 all : pmcputemp
 
 pmcputemp : pmcputemp.o about.o
-	\$(CC) -o \$@ \$(LDFLAGS) \$^
+	\$(CC) -o \$@ \$^ \$(LDFLAGS)
 	xgettext --keyword="_" pmcputemp.c about.c -o po/pmcputemp.pot
 $PO_FILES
 
