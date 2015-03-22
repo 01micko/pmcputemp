@@ -58,8 +58,8 @@ echo "GTKFLAGS:	$GTKFLAGS"
 cat > Makefile << _MAKE
 CC=gcc
 PREFIX=\$(DESTDIR)$PREFIX
-LIBDIR=\$(DESTDIR)${LIBDIR}
-MANDIR=\$(DESTDIR)${MANDIR}
+LIBDIR=\$(DESTDIR)${PREFIX}${LIBDIR}
+MANDIR=\$(DESTDIR)${PREFIX}${MANDIR}
 LOCDIR=\$(DESTDIR)$LOCDIR
 GTKFLAGS=${GTKFLAGS}
 CFLAGS=-Wall -pedantic -std=gnu99 -g -I/usr/include \`pkg-config --libs --cflags \$(GTKFLAGS) cairo\`
