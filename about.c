@@ -8,14 +8,27 @@
 #include <libintl.h>
 #include <locale.h>
 
-#define PROG "pmcputemp-0.30"
+#define PROG "pmcputemp-0.40"
 #define AUTHOR "(c) Michael Amadio"
-#define DATE "2014"
+#define DATE "2015"
 #define LICENCE "GPLv2"
 #define _(STRING)    gettext(STRING)
 
 int width = 320;
 int height = 180;
+
+static char *lang_font() {
+	char *local = getenv("LANG");
+	char *cn = "zh";
+	char *jn = "ja";
+	char *kn = "ko";
+	char *font = "sans";
+	if ((strncmp(local, cn, 2) == 0) ||
+			(strncmp(local, jn, 2) == 0) || (strncmp(local, kn, 2) == 0)) {
+		font = "wenquanyi micro hei"; /*"m+1p+ipag"*/
+	}
+	return font;
+}
 	
 void paint_win(cairo_surface_t *cs) {
 	
@@ -31,8 +44,9 @@ void paint_win(cairo_surface_t *cs) {
 	
 	cairo_t *c;
 	c = cairo_create(cs);
-	cairo_select_font_face(c, "sans", CAIRO_FONT_SLANT_NORMAL,
-			CAIRO_FONT_WEIGHT_NORMAL);
+	char *font_family = lang_font();
+	cairo_select_font_face(c, font_family, CAIRO_FONT_SLANT_NORMAL,
+		CAIRO_FONT_WEIGHT_NORMAL);
 	cairo_rectangle(c, 0.0, 0.0, width, height);
 	cairo_pattern_t *linear = cairo_pattern_create_linear(0, 0, width, height); 
 	cairo_pattern_add_color_stop_rgb(linear, 0, r1, g1, b1); 
