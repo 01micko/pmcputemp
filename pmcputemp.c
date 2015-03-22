@@ -1,5 +1,5 @@
 /* Status icon for cpu temperature*/
-/* (c) Mick Amadio 2011-2014 GPL 2 , 01micko.com*/
+/* (c) Mick Amadio 2011-2015 GPL 2 , 01micko.com*/
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
