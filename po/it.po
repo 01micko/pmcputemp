@@ -1,54 +1,39 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-09-21 06:14+1000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2015-03-26 08:23+0100\n"
+"Last-Translator: xanad <xanad@mail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: pmcputemp.c:74
-#, c-format
-msgid "Unable to create configuration file.\n"
-msgstr "Impossibile creare il file di configurazione.\n"
-
-#: pmcputemp.c:77
-#, c-format
-msgid "An attempt has been made to create a configuration file\n"
-msgstr "Un tentativo è stato fatto per creare un file di configurazione\n"
-
-#: pmcputemp.c:85
-#, c-format
-msgid "File is empty, trying again\n"
-msgstr "Il file è vuoto , provare di nuovo\n"
-
-#: pmcputemp.c:92
-#, c-format
-msgid "Can't open configured file, deleting configuration file\n"
-msgstr "Impossibile aprire il file configurato , l'eliminazione di file di configurazione\n"
-
-#: pmcputemp.c:201
-msgid "About"
-msgstr "Riguardo"
-
-#: pmcputemp.c:207
-msgid "Quit"
-msgstr "Cessare"
-
-#: pmcputemp.c:227
-msgid "CPU temperature"
-msgstr "Temperatura della CPU"
-
-#: about.c:22
 msgid "A simple tray cpu temperature monitor"
 msgstr "Un semplice controllo della temperatura cpu"
+
+msgid "About"
+msgstr "Info"
+
+msgid "An attempt has been made to create a configuration file\n"
+msgstr ""
+"È stato eseguito un tentativo di creazione del file di configurazione\n"
+
+msgid "CPU temperature"
+msgstr "Temperatura CPU"
+
+msgid "Can't open configured file, deleting configuration file\n"
+msgstr ""
+"Impossibile aprire il file configurato, eliminazione del file di "
+"configurazione\n"
+
+msgid "File is empty, trying again\n"
+msgstr "Il file è vuoto, prova ancora\n"
+
+msgid "Quit"
+msgstr "Esci"
+
+msgid "Unable to create configuration file.\n"
+msgstr "Impossibile creare il file di configurazione.\n"
