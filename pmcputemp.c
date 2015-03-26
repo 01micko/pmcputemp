@@ -34,7 +34,7 @@
 #define _GNU_SOURCE
 #define ICON ".config/pmcputemp/temp.png"
 #define CONFDIR ".config/pmcputemp"
-#define CONF ".config/pmcputemp/pcutemprc"
+#define CONF ".config/pmcputemp/pmcputemprc"
 #define _(STRING)    gettext(STRING)
 
 char temp_icon[128];
