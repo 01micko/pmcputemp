@@ -1,7 +1,5 @@
+#include <gtk/gtk.h>
 #include <cairo.h>
-#include <cairo-xlib.h>
-#include <X11/Xlib.h>
-#include <X11/Xatom.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,7 +28,7 @@ static char *lang_font() {
 	return font;
 }
 	
-void paint_win(cairo_surface_t *cs) {
+static void paint_win(cairo_surface_t *cs) {
 	
 	const char *desc = (_("A simple tray cpu temperature monitor")); 
 	float r1, g1, b1, r2, g2, b2;
@@ -75,43 +73,36 @@ void paint_win(cairo_surface_t *cs) {
 	cairo_destroy(c);
 }
 
-void show_xlib() {
-	
-	Display *dpy;
-	Window rootwin;
-	Window win;
-	XEvent e;
-	int scr;
+int show_about(gint argc, gchar *argv[]) {
+    GdkPixmap *pixmap;
+    GtkWidget *image;
+    GtkWidget *window;
+    cairo_t *cr;
 	cairo_surface_t *cs;
+	
+    gtk_init(&argc, &argv);
 
-	if (!(dpy = XOpenDisplay(NULL))) {
-		fprintf(stderr, "ERROR: Could not open display\n");
-		exit(1);
-	}
-	scr = DefaultScreen(dpy);
-	rootwin = RootWindow(dpy, scr);
-	win = XCreateSimpleWindow(dpy, rootwin, 1, 1, width, height, 0, 
-			BlackPixel(dpy, scr), BlackPixel(dpy, scr));
-	XStoreName(dpy, win, PROG);
-	/* cleanly close window with [X] */
-	Atom wm_delete = XInternAtom(dpy, "WM_DELETE_WINDOW", True);
-	XSetWMProtocols(dpy, win, &wm_delete, 1);
-	XSelectInput(dpy, win, ExposureMask);
-	XMapWindow(dpy, win);
-	cs = cairo_xlib_surface_create(dpy, win, 
-				DefaultVisual(dpy, 0), width, height);
-	int loop = 1;
-	while (loop) {
-		XNextEvent(dpy, &e);
-		if(e.type == Expose && e.xexpose.count < 1) {
-		paint_win(cs);
-		} 
-		else if (e.type == ClientMessage) {
-			loop = 0;
-			break;
-		}
-	}
-	cairo_surface_destroy(cs);
-	XCloseDisplay(dpy);
+    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    g_signal_connect(G_OBJECT(window), "delete-event", G_CALLBACK(gtk_main_quit), NULL);
+
+    gtk_widget_show_all(window);
+
+    pixmap = gdk_pixmap_new(window->window, width, height, -1);
+    cr = gdk_cairo_create(pixmap);
+    cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
+    paint_win(cs);
+	cairo_set_source_surface (cr, cs, 0.0, 0.0);
+	cairo_rectangle (cr, 0.0, 0.0, width, height);
+	cairo_fill (cr);
+    image = gtk_image_new_from_pixmap(pixmap, NULL);
+
+    gtk_container_add(GTK_CONTAINER(window), image);
+
+
+    gtk_widget_show(image);
+
+    gtk_main();
+
+    return 0;
 }
 
