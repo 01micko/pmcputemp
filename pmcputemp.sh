@@ -41,7 +41,7 @@ cputempfunc() {
 	if [ ! "$FILE" ];then echo "Failed to find file" && exit 1
 	fi
 	echo "${FILE} is written to $TMP"
-	echo -n ${FILE} > $TMP/pcutemprc
+	echo -n ${FILE} > $TMP/pmcputemprc
 	 
 }
 
