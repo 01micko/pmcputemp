@@ -98,10 +98,14 @@ int cpu_temp() {
 		int success = fscanf(ft, "%d", &temp_val);
 		if (success < 1) {
 			fprintf(stderr,_("Failed to read temperature, giving up."));
-			exit (1);
+			exit(1);
 		}
 		fclose(ft);
 		break;
+	}
+	if ((temp_val < 10000) || (temp_val > 100000)) {
+		fprintf(stderr,_("Temperature out of range or bad value, exiting."));
+		exit(1);
 	}
 	int temperature = temp_val / 1000;
 	return temperature;
