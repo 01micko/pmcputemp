@@ -94,8 +94,11 @@ int cpu_temp() {
 			unlink(conf);
 			continue;
 		}
-		while(!feof(ft)) {
-			fscanf(ft, "%d", &temp_val);
+		//while(!feof(ft)) {
+		int success = fscanf(ft, "%d", &temp_val);
+		if (success < 1) {
+			fprintf(stderr,_("Failed to read temperature, giving up."));
+			exit (1);
 		}
 		fclose(ft);
 		break;
@@ -181,12 +184,8 @@ gboolean Update(gpointer ptr) {
 	return 1;
 }
 
-void tray_icon_on_click(GtkStatusIcon *status_icon, gpointer user_data) {
-	show_xlib(); /* "About - click */
-}
-
 void  view_popup_menu_about(GtkWidget *w, gpointer dummy) {
-    show_xlib(); /* "About - menu */
+	show_about(); /* "About - menu */
 }
 
 void  quit(GtkWidget *w, gpointer dummy) {
@@ -216,7 +215,6 @@ void tray_icon_on_menu(GtkStatusIcon *status_icon, guint button,guint activate_t
 
 static GtkStatusIcon *create_tray_icon() {
 	tray_icon = gtk_status_icon_new();
-	g_signal_connect(G_OBJECT(tray_icon), "activate", G_CALLBACK(tray_icon_on_click), NULL);
 	g_signal_connect(G_OBJECT(tray_icon), "popup-menu", G_CALLBACK(tray_icon_on_menu), NULL);
 	
 	home = getenv("HOME");
