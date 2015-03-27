@@ -6,7 +6,7 @@
 #include <libintl.h>
 #include <locale.h>
 
-#define PROG "pmcputemp-0.40"
+#define PROG "pmcputemp-0.50"
 #define AUTHOR "(c) Michael Amadio"
 #define DATE "2015"
 #define LICENCE "GPLv2"
