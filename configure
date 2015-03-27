@@ -22,8 +22,8 @@ while [ $# != 0 ]; do
   --prefix=/dir	set installation path : default /usr/local
   --libdir=/dir	set lib dir : eg: --libdir=/lib64, default is '$PREFIX'/lib
   --mandir=/dir	set man dir : eg: --mandir=/man, default is '$PREFIX'/share/man
-  --with-gtk3	enables gtk+-3.0 : default is gtk+-2.0'
-				exit;;
+  '
+				exit;; #--with-gtk3	enables gtk+-3.0 : default is gtk+-2.0
 			
 		esac
 		shift
@@ -52,8 +52,8 @@ echo "======================="
 echo "prefix:	PREFIX="$PREFIX"
 libdir: LIBDIR="${PREFIX}${LIBDIR}"
 mandir: MANDIR="${PREFIX}${MANDIR}""
-[ "$GTKFLAGS" = "gtk+-2.0" ] && echo "GTKFLAGS:	gtk+-2.0" ||\
-echo "GTKFLAGS:	$GTKFLAGS"
+#[ "$GTKFLAGS" = "gtk+-2.0" ] && echo "GTKFLAGS:	gtk+-2.0" ||\
+#echo "GTKFLAGS:	$GTKFLAGS"
 
 cat > Makefile << _MAKE
 CC=gcc
@@ -86,6 +86,8 @@ $PO_DIR
 	install -m 755 pmcputemp.sh \$(PREFIX)/bin/
 	install -m 644 pmcputemp.1 \$(MANDIR)/man1/pmcputemp.1
 $PO_INSTALL
+	install -d -m 0755 /usr/share/doc/nls/pmcputemp
+	install -m 644 po/pmcputemp.pot /usr/share/doc/nls/pmcputemp/ 
 
 clean:
 	-rm -f *.o pmcputemp po/*gmo
