@@ -1,5 +1,5 @@
-/* Status icon for cpu temperature*/
-/* (c) Mick Amadio 2011-2015 GPL 2 , 01micko.com*/
+/* Status icon for cpu temperature */
+/* (c) Mick Amadio 2011-2015 GPL 2 , 01micko.com */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,8 +38,9 @@
 #define _(STRING)    gettext(STRING)
 
 char temp_icon[128];
-static char configdir[128];
-static char conf[128];
+static char configdir[256];
+static char conf[256];
+char s[4];
 /* poor man's degree symbol for cairo's poor font handling */
 const char deg[2] = "o"; 
 
@@ -61,9 +62,8 @@ int mk_conf() {
 
 int cpu_temp() {
 	home = getenv("HOME");
-	conf[128] = sprintf(conf, "%s/%s", home, CONF);
-	char temp_file[128];
-	char temp_file_out[128];
+	conf[256] = snprintf(conf, sizeof(conf), "%s/%s", home, CONF);
+	char temp_file_out[512];
 	int ret_try;
 	int temp_val;
 	while (1) {
@@ -79,10 +79,10 @@ int cpu_temp() {
 					continue;
 			}
 		}
-		if (fgets(temp_file, sizeof(temp_file), fp) != NULL) {
-			temp_file_out[128] = sprintf(temp_file_out, "%s", temp_file);
-		} else {
+		int success_conf = fscanf(fp, "%s", temp_file_out);
+		if (success_conf < 1) {
 			fprintf(stderr, _("File is empty, trying again\n"));
+			fclose(fp);
 			continue;
 		}
 		fclose(fp);
@@ -94,17 +94,16 @@ int cpu_temp() {
 			unlink(conf);
 			continue;
 		}
-		//while(!feof(ft)) {
-		int success = fscanf(ft, "%d", &temp_val);
-		if (success < 1) {
-			fprintf(stderr,_("Failed to read temperature, giving up."));
+		int success_temp = fscanf(ft, "%d", &temp_val);
+		if (success_temp < 1) {
+			fprintf(stderr,_("Failed to read temperature, giving up.\n"));
 			exit(1);
 		}
 		fclose(ft);
 		break;
 	}
 	if ((temp_val < 10000) || (temp_val > 100000)) {
-		fprintf(stderr,_("Temperature out of range or bad value, exiting."));
+		fprintf(stderr,_("Temperature out of range or bad value, exiting.\n"));
 		exit(1);
 	}
 	int temperature = temp_val / 1000;
@@ -115,12 +114,12 @@ int cpu_temp() {
 int paint_icon() {
 	home = getenv("HOME");
 	int temp = cpu_temp();
-	configdir[128] = sprintf(configdir,"%s/%s", home, CONFDIR);
+	configdir[256] = snprintf(configdir, 
+						sizeof(configdir),"%s/%s", home, CONFDIR);
 	mkdir(configdir, 0755);
-	temp_icon[128] = sprintf(temp_icon,"%s/%s", home, ICON);
-	char s[4];
-	s[4] = sprintf(s, "%d", temp);
-
+	temp_icon[128] = snprintf(temp_icon,
+						sizeof(temp_icon),"%s/%s", home, ICON);
+	s[4] = snprintf(s, sizeof(s),"%d", temp);
 	float r1, g1, b1, r2, g2, b2;
 	if (temp < 40 ) {
 		r1 = 0.4; r2 = 0.2;
@@ -166,7 +165,6 @@ int paint_icon() {
 	cairo_pattern_add_color_stop_rgb(linear, 1, r2, g2, b2);
 	cairo_set_source(c, linear);
 	cairo_fill_preserve (c);
-
 	cairo_set_font_size(c, 14.0);
 	cairo_move_to(c, 1.0, 17.0);
 	cairo_set_source_rgb(c, 0.0, 0.0, 0.0);
@@ -175,8 +173,8 @@ int paint_icon() {
 	cairo_move_to(c, 18.0, 11.0);
 	cairo_set_source_rgb(c, 0.0, 0.0, 0.0);
 	cairo_show_text(c, deg);
-	cairo_destroy(c);
 	cairo_surface_write_to_png (cs, temp_icon);
+	cairo_destroy(c);
 	return temp;
 }
 
@@ -222,7 +220,7 @@ static GtkStatusIcon *create_tray_icon() {
 	g_signal_connect(G_OBJECT(tray_icon), "popup-menu", G_CALLBACK(tray_icon_on_menu), NULL);
 	
 	home = getenv("HOME");
-	temp_icon[128] = sprintf(temp_icon,"%s/%s", home, ICON);
+	temp_icon[128] = snprintf(temp_icon, sizeof(temp_icon),"%s/%s", home, ICON);
         
 	temp_pixbuf = gdk_pixbuf_new_from_file(temp_icon,&gerror);
 	gtk_status_icon_set_from_pixbuf(tray_icon,temp_pixbuf);							   
