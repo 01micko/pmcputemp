@@ -102,5 +102,6 @@ uninstall:
 	rm -f \$(PREFIX)/bin/pmcputemp.sh
 	rm -f \$(MANDIR)/man1/pmcputemp.1
 $PO_UNINSTALL
+	rm -f /usr/share/doc/nls/pmcputemp/pmcputemp.pot
 
 _MAKE
