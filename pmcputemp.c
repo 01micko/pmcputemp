@@ -66,7 +66,12 @@ int cpu_temp() {
 	char temp_file_out[512];
 	int ret_try;
 	int temp_val;
+	int tries = 0;
 	while (1) {
+		if (tries > 10) {
+			fprintf(stderr,"Aborting\n");
+			exit(1);
+		}
 		fp = fopen(conf, "r");
 		if ( fp == NULL ) {
 			ret_try = mk_conf();
@@ -76,6 +81,7 @@ int cpu_temp() {
 			} else {
 				fprintf(stdout, _("An attempt has been made to create " 
 							"a configuration file\n"));
+					tries++;
 					continue;
 			}
 		}
@@ -83,6 +89,7 @@ int cpu_temp() {
 		if (success_conf < 1) {
 			fprintf(stderr, _("File is empty, trying again\n"));
 			fclose(fp);
+			tries++;
 			continue;
 		}
 		fclose(fp);
@@ -92,6 +99,7 @@ int cpu_temp() {
 			fprintf(stderr, _("Can't open configured file, deleting "
 												"configuration file\n"));
 			unlink(conf);
+			tries++;
 			continue;
 		}
 		int success_temp = fscanf(ft, "%d", &temp_val);
