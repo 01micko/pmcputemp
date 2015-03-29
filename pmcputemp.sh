@@ -1,9 +1,7 @@
 #!/bin/sh
 
 TMP=~/.config/pmcputemp
-KV=`uname -r`
 arch=`uname -m`
-[ "${KV:2:1}" -lt 7 ] && HorT=head || HorT=tail
 load_module_func() {
 	lsmod|grep -q coretemp
 	CORETEMP=$?
@@ -31,18 +29,20 @@ cputempfunc() {
 		[ $? -ne 0 ] && exit 1
 	fi
 	[ ! -d $TMP ] && mkdir $TMP
-	FILE=`find /sys/devices/ -type f -name temp1_input|${HorT} -n1`
-	if [ ! "$FILE" ];then
-		FILE=`find /sys/devices/platform/ -type f -name 'temp*input'|tail -n1`
-	fi
-	if [ ! "$FILE" ];then
-		FILE=`find /sys -type f -name 'temp*'|head -n1` #last try
-	fi
+	FILES=`find /sys/devices -type f -name 'temp*_input'|sort`
+	for n in `echo $FILES`; do
+		read p < $n
+		if [ $? = 0 ];then
+			FILE=$n
+			break
+		else
+			continue
+		fi
+	done
 	if [ ! "$FILE" ];then echo "Failed to find file" && exit 1
 	fi
 	echo "${FILE} is written to $TMP"
 	echo -n ${FILE} > $TMP/pmcputemprc
-	 
 }
 
 cputempfunc
