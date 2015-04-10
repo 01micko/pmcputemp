@@ -191,6 +191,7 @@ gboolean Update(gpointer ptr) {
 	paint_icon();
 	temp_pixbuf = gdk_pixbuf_new_from_file(temp_icon,&gerror);
 	gtk_status_icon_set_from_pixbuf(tray_icon,temp_pixbuf);
+	fprintf(stdout,"Updating\n"); /*test REMOVE*/
 	return 1;
 }
 
@@ -243,7 +244,15 @@ int main(int argc, char **argv) {
 	setlocale( LC_ALL, "" ); 
 	bindtextdomain( "pmcputemp", "/usr/share/locale" ); 
 	textdomain( "pmcputemp" );
-	
+	if (argc == 2) { /* only accepts 2 - 10 */
+		interval = atoi(argv[1]); /* returns 0 if garbage is input */
+		if ((interval < 1) || (interval > 10)) {
+		fprintf(stderr,_("Polling interval out of range. Use 1 to 10\n"
+			"Using default 5 seconds\n"));
+			interval = 5;
+		}
+		interval = interval * 1000; /* millisecs */
+	}
 	gtk_init(&argc, &argv);
 	paint_icon(); /* needed to kick it off */
 	create_tray_icon();
