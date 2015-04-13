@@ -70,6 +70,7 @@ int cpu_temp() {
 	while (1) {
 		if (tries > 10) {
 			fprintf(stderr,"Aborting\n");
+			show_about(1);
 			exit(1);
 		}
 		fp = fopen(conf, "r");
@@ -77,6 +78,7 @@ int cpu_temp() {
 			ret_try = mk_conf();
 			if (ret_try != 0) {
 				fprintf(stderr, _("Unable to create configuration file.\n"));
+				show_about(1);
 				exit (1); /* kill it */
 			} else {
 				fprintf(stdout, _("An attempt has been made to create " 
@@ -105,6 +107,7 @@ int cpu_temp() {
 		int success_temp = fscanf(ft, "%d", &temp_val);
 		if (success_temp < 1) {
 			fprintf(stderr,_("Failed to read temperature, giving up.\n"));
+			show_about(1);
 			exit(1);
 		}
 		fclose(ft);
@@ -129,17 +132,22 @@ int paint_icon() {
 						sizeof(temp_icon),"%s/%s", home, ICON);
 	s[4] = snprintf(s, sizeof(s),"%d", temp);
 	float r1, g1, b1, r2, g2, b2;
-	if (temp < 40 ) {
+	if (temp < 46 ) {
 		r1 = 0.4; r2 = 0.2;
 		g1 = 0.9; g2 = 0.7;
 		b1 = 0.9; b2 = 0.7;
 	}
-	if ((temp >= 40) && (temp <= 56)) {
+	if ((temp >= 46) && (temp <= 70)) {
 		r1 = 0.4; r2 = 0.4;
 		g1 = 0.9; g2 = 0.7;
 		b1 = 0.4; b2 = 0.4;
 	}
-	if (temp > 56 ) {
+	if ((temp > 70 ) && (temp <= 80)) {
+		r1 = 0.6; r2 = 0.8;
+		g1 = 0.3; g2 = 0.5;
+		b1 = 0.1; b2 = 0.1;
+	}
+	if (temp > 80 ) {
 		r1 = 0.9; r2 = 0.7;
 		g1 = 0.7; g2 = 0.4;
 		b1 = 0.7; b2 = 0.4;		
@@ -195,7 +203,7 @@ gboolean Update(gpointer ptr) {
 }
 
 void  view_popup_menu_about(GtkWidget *w, gpointer dummy) {
-	show_about(); /* "About - menu */
+	show_about(0); /* "About - menu */
 }
 
 void  quit(GtkWidget *w, gpointer dummy) {
