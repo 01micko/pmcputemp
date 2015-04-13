@@ -23,13 +23,9 @@ load_module_func() {
 	fi
 	return 0
 }
-cputempfunc() {
-	if [ "${arch:0:3}" != "arm" ];then
-		load_module_func
-		[ $? -ne 0 ] && exit 1
-	fi
-	[ ! -d $TMP ] && mkdir $TMP
-	FILES=`find /sys/devices -type f -name 'temp*_input'|sort`
+
+find_func() {
+	FILES="$1"
 	for n in `echo $FILES`; do
 		read p < $n
 		if [ $? = 0 ];then
@@ -39,10 +35,23 @@ cputempfunc() {
 			continue
 		fi
 	done
+}
+
+cputempfunc() {
+	if [ "${arch:0:3}" != "arm" ];then
+		load_module_func
+		[ $? -ne 0 ] && exit 1
+	fi
+	[ ! -d $TMP ] && mkdir $TMP
+	for a in `find /sys/devices/virtual -type f -name 'temp'|sort` \
+			`find /sys/devices/platform -type f -name 'temp*_input'|sort` \
+			`find /sys/devices/pci* -type f -name 'temp*_input'|sort`
+	do find_func "$a"
+		[ -z "$FILE" ] && continue || break
+	done
 	if [ ! "$FILE" ];then echo "Failed to find file" && exit 1
 	fi
 	echo "${FILE} is written to $TMP"
 	echo -n ${FILE} > $TMP/pmcputemprc
 }
-
 cputempfunc
