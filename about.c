@@ -6,14 +6,16 @@
 #include <libintl.h>
 #include <locale.h>
 
-#define PROG "pmcputemp-0.60"
+#define PROG "pmcputemp-0.61"
 #define AUTHOR "(c) Michael Amadio"
 #define DATE "2015"
 #define LICENCE "GPLv2"
 #define _(STRING)    gettext(STRING)
+#define ERRORMSG "unfortunately is not working on your system"
 
 int width = 320;
 int height = 180;
+int status;
 
 static char *lang_font() {
 	char *local = getenv("LANG");
@@ -28,18 +30,26 @@ static char *lang_font() {
 	return font;
 }
 	
-static void paint_win(cairo_surface_t *cs) {
-	
+static void paint_win(cairo_surface_t *cs, int msg) { 
 	const char *desc = (_("A simple tray cpu temperature monitor")); 
 	float r1, g1, b1, r2, g2, b2;
 	/* for gradient */
-	r1 = 0.2;
-	g1 = 0.9;
-	b1 = 0.9;
-	r2 = 0.4;
-	g2 = 0.6;
-	b2 = 0.6;
-	
+	if (msg == 0) {
+		r1 = 0.2;
+		g1 = 0.9;
+		b1 = 0.9;
+		r2 = 0.4;
+		g2 = 0.6;
+		b2 = 0.6;
+	} else {
+		r1 = 0.6;
+		g1 = 0.3;
+		b1 = 0.1;
+		r2 = 0.8;
+		g2 = 0.5;
+		b2 = 0.1;
+		desc = (_("sadly does not work on your system"));
+	}
 	cairo_t *c;
 	c = cairo_create(cs);
 	char *font_family = lang_font();
@@ -90,14 +100,13 @@ int show_about(gint argc, gchar *argv[]) {
     pixmap = gdk_pixmap_new(window->window, width, height, -1);
     cr = gdk_cairo_create(pixmap);
     cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
-    paint_win(cs);
+    paint_win(cs, argc);
 	cairo_set_source_surface (cr, cs, 0.0, 0.0);
 	cairo_rectangle (cr, 0.0, 0.0, width, height);
 	cairo_fill (cr);
     image = gtk_image_new_from_pixmap(pixmap, NULL);
 
     gtk_container_add(GTK_CONTAINER(window), image);
-
 
     gtk_widget_show(image);
 
