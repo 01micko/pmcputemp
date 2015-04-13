@@ -28,12 +28,13 @@ Some basic options to `configure` are provided. Run `configure --help`
 Depends
 -------
 - Cairo
-- Gtk+ >= 2.0 (works in Gtk+-3.0, but needs adjustment for missing icons)
+- Gtk+ >= 2.0 (broken in gtk3 for now)
 - Xlib
 
 Usage
 -----
-Just run `pmcputemp` from the command line, it needs no options. It will attempt 
+Just run `pmcputemp` from the command line, it does accept an integer 
+switch (1 - 10) to adjust the default delay (5). It will attempt 
 to generate a config directory and temprary storage at `$HOME/.config/pmcputemp` at first
 run. See the script `pmcputemp.sh`. In this directory, `pmcputemprc` should be 
 generated with the path to the cpu temperature file. In the case of multicore
