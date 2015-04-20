@@ -6,12 +6,11 @@
 #include <libintl.h>
 #include <locale.h>
 
-#define PROG "pmcputemp-0.61"
+#define PROG "pmcputemp-0.63"
 #define AUTHOR "(c) Michael Amadio"
 #define DATE "2015"
 #define LICENCE "GPLv2"
 #define _(STRING)    gettext(STRING)
-#define ERRORMSG "unfortunately is not working on your system"
 
 int width = 320;
 int height = 180;
@@ -48,7 +47,7 @@ static void paint_win(cairo_surface_t *cs, int msg) {
 		r2 = 0.8;
 		g2 = 0.5;
 		b2 = 0.1;
-		desc = (_("sadly does not work on your system"));
+		desc = (_("unfortunately does not work on your system"));
 	}
 	cairo_t *c;
 	c = cairo_create(cs);
