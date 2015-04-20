@@ -36,6 +36,7 @@
 #define CONFDIR ".config/pmcputemp"
 #define CONF ".config/pmcputemp/pmcputemprc"
 #define _(STRING)    gettext(STRING)
+#define CPU_FILE "/proc/cpuinfo"
 
 char temp_icon[128];
 static char configdir[256];
@@ -43,7 +44,12 @@ static char conf[256];
 char s[4];
 /* poor man's degree symbol for cairo's poor font handling */
 const char deg[2] = "o"; 
-
+char line[512];
+char freq_out[1024];
+int proc_out;
+gchar *tooltip_out;
+gchar *tool_tip;
+int x_procs;
 GdkPixbuf *temp_pixbuf;
 GtkStatusIcon *tray_icon;
 
@@ -53,6 +59,7 @@ FILE *fp;
 FILE *ft;
 const char *home;
 GError *gerror = NULL;
+
 
 int mk_conf() {
 	/* script to setup system temperature location */
@@ -194,11 +201,69 @@ int paint_icon() {
 	return temp;
 }
 
+/* tooltip */
+char *split_string(char *var) {
+	char *buf = var;
+	const char s[2] = ":";
+	char *token;
+	token = strtok(buf, s);
+	token = strtok(NULL , s);
+	return token;
+}
+
+/* get number of processors */
+int num_procs() {
+	char line[512];
+	fp = fopen(CPU_FILE, "r");
+	if ( fp != NULL ) {
+		while (1) {
+			while (fgets(line, sizeof(line), fp)) {
+				if (strncmp(line,  "processor", 9) == 0) {
+					char *res = split_string(line);
+					res = strtok(res, "\n");
+					proc_out = atoi(res);
+				}
+			}
+			break;
+		}
+	}
+	fclose(fp);
+	return proc_out;
+}
+
+gchar *get_tt(int num){
+	int res1;
+	const char *proc = "CPU";
+	const char *temperature = (_("temperature"));
+	const char *num_processors = (_("Processors"));
+	const char *freq_hz = "MHz";
+	int i = 0;
+	int pos = 0;
+	fp = fopen(CPU_FILE, "r");
+	while (fgets(line, sizeof(line), fp)) {
+		res1 = strncmp(line,  "cpu MHz", 7);
+		if (res1 == 0) {
+			char *res = split_string(line);
+			res = strtok(res, "\n");
+			pos += sprintf(&freq_out[pos], "%s %d: %8s %2s\n", proc, i, res, freq_hz);
+			i++;
+		}
+	}
+	fclose(fp);
+	tooltip_out = g_strdup_printf("%s %s\n%s = %d\n%s",proc, temperature, num_processors, (x_procs + 1), freq_out);
+	return tooltip_out;
+}
+/* end tooltip */
+
 gboolean Update(gpointer ptr) {
 	/* refreshes the icon */
 	paint_icon();
 	temp_pixbuf = gdk_pixbuf_new_from_file(temp_icon,&gerror);
 	gtk_status_icon_set_from_pixbuf(tray_icon,temp_pixbuf);
+	x_procs = num_procs();
+	tool_tip = get_tt(x_procs);
+	gtk_status_icon_set_tooltip(tray_icon, tool_tip);
+	g_free(tooltip_out);
 	return 1;
 }
 
@@ -261,9 +326,9 @@ int main(int argc, char **argv) {
 		interval = interval * 1000; /* millisecs */
 	}
 	gtk_init(&argc, &argv);
-	paint_icon(); /* needed to kick it off */
-	create_tray_icon();
 	
+	create_tray_icon();
+	Update(NULL); /* needed to kick it off */
 	g_timeout_add(interval, Update, NULL); /*update after 5sec*/
 	
 	gtk_main();
