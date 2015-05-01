@@ -9,7 +9,7 @@ load_module_func() {
 	KTEMP=$?
 	lsmod|grep -q it87
 	IT=$?
-	if [ "$CORETEMP" = "1" ] && [ "$KTEMP" = "1" ] && [ "IT" = "1"];then
+	if [ "$CORETEMP" = "1" ] && [ "$KTEMP" = "1" ] && [ "$IT" = "1" ];then
 		for m in coretemp k10temp k8temp it87 
 		do modprobe $m 2>/dev/null
 			if [ "$?" = "0" ];then

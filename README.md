@@ -5,6 +5,7 @@ a poor man's cpu temperature status icon
 
 Build
 -----
+
 run:
 
 ```
@@ -33,15 +34,16 @@ Depends
 
 Usage
 -----
+
 Just run `pmcputemp` from the command line, it does accept an integer 
 switch (1 - 10) to adjust the default delay (5). It will attempt 
-to generate a config directory and temprary storage at `$HOME/.config/pmcputemp` at first
+to generate a config directory and temporary storage at `$HOME/.config/pmcputemp` at first
 run. See the script `pmcputemp.sh`. In this directory, `pmcputemprc` should be 
 generated with the path to the cpu temperature file. In the case of multicore
 processors, the first core is the one which is sourced. This is a basic limitation
 of the program, after all, poor men and women may find it difficult to procure
 a multicore processor machine. The icons with the readouts are stored in this 
-directory and is written to approxiamately every 5 seconds. 
+directory and is written to approxiamately every 5 (or the switch value) seconds. 
 
 Bugs
 ----
