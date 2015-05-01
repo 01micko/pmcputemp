@@ -7,8 +7,10 @@ load_module_func() {
 	CORETEMP=$?
 	lsmod|grep -q k*temp
 	KTEMP=$?
-	if [ "$CORETEMP" = "1" ]&& [ "$KTEMP" = "1" ];then
-		for m in coretemp k10temp k8temp  
+	lsmod|grep -q it87
+	IT=$?
+	if [ "$CORETEMP" = "1" ] && [ "$KTEMP" = "1" ] && [ "IT" = "1"];then
+		for m in coretemp k10temp k8temp it87 
 		do modprobe $m 2>/dev/null
 			if [ "$?" = "0" ];then
 				echo "loading $m"
@@ -43,9 +45,9 @@ cputempfunc() {
 		[ $? -ne 0 ] && exit 1
 	fi
 	[ ! -d $TMP ] && mkdir $TMP
-	for a in `find /sys/devices/virtual -type f -name 'temp'|sort` \
-			`find /sys/devices/platform -type f -name 'temp*_input'|sort` \
-			`find /sys/devices/pci* -type f -name 'temp*_input'|sort`
+	for a in `find /sys/devices/platform -type f -name 'temp*_input'|sort` \
+			`find /sys/devices/pci* -type f -name 'temp*_input'|sort` \
+			`find /sys/devices/virtual -type f -name 'temp'|sort`
 	do find_func "$a"
 		[ -z "$FILE" ] && continue || break
 	done
