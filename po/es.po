@@ -1,0 +1,81 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: pmcputemp 0.63\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-04-21 10:46+1000\n"
+"PO-Revision-Date: 2015-04-30 10:16-0600\n"
+"Last-Translator: nilsonmorales <nilsonmorales@hotmail.com>\n"
+"Language-Team: SPANISH <LL@li.org>\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: pmcputemp.c:87
+#, c-format
+msgid "Unable to create configuration file.\n"
+msgstr "No se puede crear el archivo de configuración.\n"
+
+#: pmcputemp.c:91
+#, c-format
+msgid "An attempt has been made to create a configuration file\n"
+msgstr "Se ha intentado crear un archivo de configuración\n"
+
+#: pmcputemp.c:99
+#, c-format
+msgid "File is empty, trying again\n"
+msgstr "El archivo está vací­o, intentando de nuevo\n"
+
+#: pmcputemp.c:108
+#, c-format
+msgid "Can't open configured file, deleting configuration file\n"
+msgstr ""
+"No se puede abrir el archivo configurado , borrando archivo de "
+"configuración\n"
+
+#: pmcputemp.c:116
+#, c-format
+msgid "Failed to read temperature, giving up.\n"
+msgstr "Error al leer la temperatura , renunciando.\n"
+
+#: pmcputemp.c:124
+#, c-format
+msgid "Temperature out of range or bad value, exiting.\n"
+msgstr "Temperatura fuera de rango o valor erroneo , saliendo\n"
+
+#: pmcputemp.c:237
+msgid "temperature"
+msgstr "temperatura"
+
+#: pmcputemp.c:238
+msgid "Processors"
+msgstr "Procesadores"
+
+#: pmcputemp.c:283
+msgid "About"
+msgstr "Acerca de"
+
+#: pmcputemp.c:289
+msgid "Quit"
+msgstr "Salir"
+
+#: pmcputemp.c:308
+msgid "CPU temperature"
+msgstr "Temperatura de CPU"
+
+#: pmcputemp.c:322
+#, c-format
+msgid ""
+"Polling interval out of range. Use 1 to 10\n"
+"Using default 5 seconds\n"
+msgstr ""
+"Intervalo de sondeo fuera de rango. Utilice 1 a 10\n"
+"Usando por defecto 5 segundos\n"
+
+#: about.c:33
+msgid "A simple tray cpu temperature monitor"
+msgstr "Monitor simple de temperatura de cpu "
+
+#: about.c:50
+msgid "unfortunately does not work on your system"
+msgstr "desafortunadamente no funciona en su sistema"
