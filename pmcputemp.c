@@ -326,7 +326,7 @@ int main(int argc, char **argv) {
 		interval = interval * 1000; /* millisecs */
 	}
 	gtk_init(&argc, &argv);
-	
+	paint_icon();
 	create_tray_icon();
 	Update(NULL); /* needed to kick it off */
 	g_timeout_add(interval, Update, NULL); /*update after 5sec*/
