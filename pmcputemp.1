@@ -1,21 +1,32 @@
-.TH PMCPUTEMP 1 "13 April 2015"
+.TH PMCPUTEMP 1 "6 May 2015"
 .SH NAME
 pmcputemp \- a poor man's cpu temperature status icon
 .SH SYNOPSIS
-\fBpmcputemp\fP
+.B "pmcputemp"
+[ \fB\integer\fP  ] [ \fBd\fP ] [ \fBl\fP ] [ \fB\module\fP  ]
 .SH DESCRIPTION
 \fBpmcputemp\fP displays a an icon in the system tray
 displaying the current CPU temperature, updated every 5 seconds.
 .SS Options
 .TP
-[integer] 1 to 10. This overrides the default 5 second delay
+.BR [integer] 
+1 to 10. This overrides the default 5 second delay
 .TP
+.BR d 
+displays a dark themed status icon
+.TP
+.BR l 
+(lower case "L") displays a light themed status icon
+.TP
+.BR module] 
+loads a kernel module of your choice, only useful on first run
+
 Right clicking presents a small menu to display "About" dialog or "Quit",
-which terminates the application.
-.TP
+which terminates the application. If configured, "Info" and "Help" dialogs
+are available.
 It can only be invoked from CLI or script. It can be autostarted with a 
 window manager. See your distribution's documentation for this feature.
-.TP
+
 At first run, a script attempts to identify the correct file on your
 system which is sourced to generate the temperature in degrees Celcius.
 If a sensor module is not loaded it does attempt to do this.
