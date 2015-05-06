@@ -2,58 +2,80 @@
 
 TMP=~/.config/pmcputemp
 arch=`uname -m`
+
 load_module_func() {
-	lsmod|grep -q coretemp
-	CORETEMP=$?
-	lsmod|grep -q k*temp
-	KTEMP=$?
-	lsmod|grep -q it87
-	IT=$?
-	if [ "$CORETEMP" = "1" ] && [ "$KTEMP" = "1" ] && [ "$IT" = "1" ];then
-		for m in coretemp k10temp k8temp it87 
-		do modprobe $m 2>/dev/null
-			if [ "$?" = "0" ];then
-				echo "loading $m"
-				L=0
-				break 
-			else 
-				L=1
-				continue
-			fi
-		done
-	[ "$L" = "1" ] && echo "Can't load a temperature module" && return 1
-	fi
-	return 0
+	[ -z "$1" ] || mod=$1 # manually specified on cli
+	#echo "test module" # COMMENT THIS IN REAL LIFE
+	for m in ${mod} coretemp k10temp k8temp it87 lm85 # more can be added
+	do 
+		#echo "$m" # COMMENT THIS IN REAL LIFE
+		lsmod|grep -q $m # check if loaded
+		ret=$?
+		if [ $ret -ne 0 ];then
+			modprobe $m 2>/dev/null # load if not already
+		fi
+		check_temp_data_exists # returns 0 on success
+		dat=$?
+		if [ $dat -eq 0 ];then
+			return 0 # success, break here
+		else
+			rmmod $m 2>/dev/null # try to unload as it is useless to us
+			continue # module failed, try next module
+		fi
+	done		
+	# if we get here it failed
+	echo "Can't load a temperature module"
+	return 1
 }
 
 find_func() {
+	#echo "searching" # COMMENT THIS IN REAL LIFE
 	FILES="$1"
 	for n in `echo $FILES`; do
 		read p < $n
 		if [ $? = 0 ];then
-			FILE=$n
+			FILE=$n # found it
 			break
 		else
-			continue
+			continue # didn't find, search again
 		fi
 	done
+	# if we get here we didn't find anything useful
 }
 
-cputempfunc() {
-	if [ "${arch:0:3}" != "arm" ];then
-		load_module_func
-		[ $? -ne 0 ] && exit 1
-	fi
-	[ ! -d $TMP ] && mkdir $TMP
+check_temp_data_exists() {
+	#echo "checking data" # COMMENT THIS IN REAL LIFE
+	# the rough order is Intel, AMD, whatever else
 	for a in `find /sys/devices/platform -type f -name 'temp*_input'|sort` \
 			`find /sys/devices/pci* -type f -name 'temp*_input'|sort` \
 			`find /sys/devices/virtual -type f -name 'temp'|sort`
 	do find_func "$a"
-		[ -z "$FILE" ] && continue || break
+		[ -z "$FILE" ] && continue || break # if we found data break
 	done
-	if [ ! "$FILE" ];then echo "Failed to find file" && exit 1
+	if [ ! "$FILE" ];then echo "Failed to find file" && return 1 # bail out
 	fi
-	echo "${FILE} is written to $TMP"
-	echo -n ${FILE} > $TMP/pmcputemprc
+	# if we get here we found it, so we write to file
+	[ ! -d $TMP ] && mkdir $TMP
+	echo -e "\"${FILE}\" is written to : \n$TMP"
+	echo -n ${FILE} > $TMP/pmcputemprc # UNCOMMENT THIS IN REAL LIFE
+	return 0
 }
-cputempfunc
+
+cputempfunc() {
+	#echo "starting" # COMMENT THIS IN REAL LIFE
+	if [ "${arch:0:3}" != "arm" ];then
+		load_module_func
+		[ $? -ne 0 ] && exit 1
+	else
+		check_temp_data_exists
+		return $?
+	fi
+	return 0
+}
+
+if [ -z "$1" ];then
+	cputempfunc # start
+else
+	cli_mod=$1
+	load_module_func $cli_mod # module specified on pmcputemp cli
+fi
