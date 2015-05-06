@@ -51,6 +51,10 @@ msgstr "temperatura"
 msgid "Processors"
 msgstr "Procesadores"
 
+#: pmcputemp.c:290
+msgid "Info"
+msgstr "Información"
+
 #: pmcputemp.c:283
 msgid "About"
 msgstr "Acerca de"
@@ -79,3 +83,12 @@ msgstr "Monitor simple de temperatura de cpu "
 #: about.c:50
 msgid "unfortunately does not work on your system"
 msgstr "desafortunadamente no funciona en su sistema"
+
+#: lm.c:29
+msgid "Sensors"
+msgstr "Sensores"
+
+#: lm.c:43
+msgid "Output from lm_sensors"
+msgstr "La salida de lm_sensors"
+
