@@ -3,10 +3,9 @@
 
 #defaults
 GTKFLAGS=gtk+-2.0
-LIBDIR=/lib
 PREFIX=/usr/local
-LOCDIR=/usr/share/locale
-MANDIR=/share/man
+sensors=no
+help=no
 
 #parameters
 while [ $# != 0 ]; do
@@ -16,20 +15,27 @@ while [ $# != 0 ]; do
 			--prefix*) PREFIX=`echo $1|cut -d '=' -f2`;;
 			--libdir*) LIBDIR=`echo $1|cut -d '=' -f2`;;
 			--mandir*) MANDIR=`echo $1|cut -d '=' -f2`;;
+			--enable-sensors*)SENSORS=-DHAVE_SENSORS;sensors=true;;
+			--with-help)HELP=-DHAVE_HELP;help=true;;
 			--with-gtk3)GTKFLAGS=gtk+-3.0;;
 			-h|--help)	echo '
-  -h|--help    show this help
-  --prefix=/dir	set installation path : default /usr/local
-  --libdir=/dir	set lib dir : eg: --libdir=/lib64, default is '$PREFIX'/lib
-  --mandir=/dir	set man dir : eg: --mandir=/man, default is '$PREFIX'/share/man
-  '
-				exit;; #--with-gtk3	enables gtk+-3.0 : default is gtk+-2.0
+ -h|--help    show this help
+ --prefix=	set installation path, default /usr/local
+ --libdir=	set lib dir, eg: --libdir=/usr/lib64, default '$PREFIX'/lib
+ --mandir=	set man dir, eg: --mandir=/usr/man, default '$PREFIX'/share/man
+ --enable-sensors	useful if lm_sensors is installed, else ignored
+ --with-help	useful if \"mdview\" markdown viewer is installed 
+ --with-gtk3	enables gtk+-3.0 : default is gtk+-2.0 '
+				exit;; #
 			
 		esac
 		shift
 		I=$(($I+1))
 	done
 done
+[ -z "$LIBDIR" ] && LIBDIR=${PREFIX}/lib
+[ -z "$MANDIR" ] && MANDIR=${PREFIX}/share/man
+[ -z "$LOCDIR" ] && LOCDIR=${PREFIX}/share/locale
 
 for p in `ls po|grep po$` #eg p=fr.po
 do loc=${p%%.*}
@@ -38,56 +44,109 @@ PO_FILES=${PO_FILES}"
 PO_DIR=${PO_DIR}"
 	install -d -m 0755 \$(LOCDIR)/$loc/LC_MESSAGES/"
 PO_INSTALL=${PO_INSTALL}"
-	install -m 644 po/$loc.gmo \$(LOCDIR)/$loc/LC_MESSAGES/pmcputemp.mo"
+	install -m 0644 po/$loc.gmo \$(LOCDIR)/$loc/LC_MESSAGES/pmcputemp.mo"
 PO_UNINSTALL=${PO_UNINSTALL}"
 	rm -f \$(LOCDIR)/$loc/LC_MESSAGES/pmcputemp.mo"
 done
 
 echo -n "checking for gcc...	"
-if [ "$?" -ne 127 ];then  echo "ok" 
+type gcc 2>&1 >/dev/null
+if [ "$?" -ne 127 ];then  echo "	ok" 
   else echo -e "not found \naborting" && exit
+fi
+
+if [ "$sensors" = "true" ];then
+	echo -n "checking for lm_sensors...	"
+	type sensors 2>&1 >/dev/null
+	if [ "$?" -eq 0 ];then 
+		echo "ok"
+		sensors=yes
+		SENSORS=-DHAVE_SENSORS
+		SOBJ=lm.o
+		LMOBJ='
+lm.o: lm.c
+	$(CC) -o $@ $(CFLAGS) $(GTK3) -c $^
+'
+		LMPOT=lm.c
+	else
+		echo "not installed"
+		echo \
+		"You requested \"--enable-sensors\" however lm_sensors is not installed"
+		echo "Building with sensors disabled."
+		sensors=no
+		SENSORS=""
+	fi
+fi
+if [ "$help" = "true" ];then
+	echo -n "checking for mdview...	"
+	type mdview 2>&1 >/dev/null
+	if [ "$?" -eq 0 ];then 
+		echo "	ok"
+		help=yes
+		HELP=-DHAVE_HELP
+		HELP_INST="
+	install -d -m 0755 /usr/share/pmcputemp
+	install -m 0644 README.md /usr/share/pmcputemp/index.md"
+	else
+		echo "not installed"
+		echo \
+		"You requested \"--with-help\" however mdview is not installed"
+		echo "Building with help disabled."
+		help=no
+		HELP=""
+		HELP_INST=""
+	fi
 fi
 echo
 echo "======================="
-echo "prefix:	PREFIX="$PREFIX"
-libdir: LIBDIR="${PREFIX}${LIBDIR}"
-mandir: MANDIR="${PREFIX}${MANDIR}""
-#[ "$GTKFLAGS" = "gtk+-2.0" ] && echo "GTKFLAGS:	gtk+-2.0" ||\
-#echo "GTKFLAGS:	$GTKFLAGS"
+echo "prefix:		"$PREFIX"
+libdir: 	"${LIBDIR}"
+mandir:		"${MANDIR}"
+locdir:		"${LOCDIR}"
+sensors:	"$sensors"
+help:		"$help""
+[ "$GTKFLAGS" = "gtk+-2.0" ] && echo "gtk version:	gtk+-2.0" ||\
+echo "gtk version:	$GTKFLAGS"
+[ "$GTKFLAGS" = "gtk+-3.0" ] && GTK3=-DHAVE_GTK3
+echo "If this looks wrong run $0 again"
 
 cat > Makefile << _MAKE
 CC=gcc
 PREFIX=\$(DESTDIR)$PREFIX
-LIBDIR=\$(DESTDIR)${PREFIX}${LIBDIR}
-MANDIR=\$(DESTDIR)${PREFIX}${MANDIR}
+LIBDIR=\$(DESTDIR)${LIBDIR}
+MANDIR=\$(DESTDIR)${MANDIR}
 LOCDIR=\$(DESTDIR)$LOCDIR
 GTKFLAGS=${GTKFLAGS}
+SENSORS=$SENSORS
 CFLAGS=-Wall -pedantic -std=gnu99 -g -I/usr/include \`pkg-config --libs --cflags \$(GTKFLAGS) cairo\`
 LDFLAGS=-Wall -g \`pkg-config --libs \$(GTKFLAGS) cairo\` -L\$(LIBDIR) -lX11
+GTK3=$GTK3
+HELP=$HELP
 
 all : pmcputemp
 
-pmcputemp : pmcputemp.o about.o
+pmcputemp : pmcputemp.o about.o $SOBJ
 	\$(CC) -o \$@ \$^ \$(LDFLAGS)
-	xgettext --keyword="_" pmcputemp.c about.c -o po/pmcputemp.pot
+	xgettext --keyword="_" pmcputemp.c about.c $LMPOT -o po/pmcputemp.pot
 $PO_FILES
 
 pmcputemp.o : pmcputemp.c
-	\$(CC) -o \$@ \$(CFLAGS) -c \$^
+	\$(CC) -o \$@ \$(CFLAGS) \$(SENSORS) \$(GTK3) \$(HELP) -c \$^
 
 about.o : about.c
-	\$(CC) -o \$@ \$(CFLAGS) -c \$^
-	
+	\$(CC) -o \$@ \$(CFLAGS) \$(GTK3) -c \$^
+${LMOBJ}	
 install:
 	install -d -m 0755 \$(PREFIX)/bin
 	install -d -m 0755 \$(MANDIR)/man1
 $PO_DIR
-	install -s -m 755 pmcputemp \$(PREFIX)/bin/
-	install -m 755 pmcputemp.sh \$(PREFIX)/bin/
-	install -m 644 pmcputemp.1 \$(MANDIR)/man1/pmcputemp.1
+	install -s -m 0755 pmcputemp \$(PREFIX)/bin/
+	install -m 0755 pmcputemp.sh \$(PREFIX)/bin/
+	install -m 0644 pmcputemp.1 \$(MANDIR)/man1/pmcputemp.1
+$HELP_INST
 $PO_INSTALL
 	install -d -m 0755 /usr/share/doc/nls/pmcputemp
-	install -m 644 po/pmcputemp.pot /usr/share/doc/nls/pmcputemp/ 
+	install -m 0644 po/pmcputemp.pot /usr/share/doc/nls/pmcputemp/ 
 
 clean:
 	-rm -f *.o pmcputemp po/*gmo
@@ -102,6 +161,7 @@ uninstall:
 	rm -f \$(PREFIX)/bin/pmcputemp.sh
 	rm -f \$(MANDIR)/man1/pmcputemp.1
 $PO_UNINSTALL
-	rm -f /usr/share/doc/nls/pmcputemp/pmcputemp.pot
+	rm -rf /usr/share/doc/nls/pmcputemp/
+	rm -rf /usr/share/pmcputemp/
 
 _MAKE
