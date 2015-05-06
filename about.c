@@ -6,7 +6,7 @@
 #include <libintl.h>
 #include <locale.h>
 
-#define PROG "pmcputemp-0.64"
+#define PROG "pmcputemp-0.67"
 #define AUTHOR "(c) Michael Amadio"
 #define DATE "2015"
 #define LICENCE "GPLv2"
@@ -83,31 +83,46 @@ static void paint_win(cairo_surface_t *cs, int msg) {
 }
 
 int show_about(gint argc, gchar *argv[]) {
+	GtkWidget *window;
+#ifdef HAVE_GTK3
+	GdkPixbuf *pixbuf;
+#else
     GdkPixmap *pixmap;
-    GtkWidget *image;
-    GtkWidget *window;
-    cairo_t *cr;
+#endif /* HAVE_GTK3 */ 
+	GtkWidget *image;
+	cairo_t *cr;
 	cairo_surface_t *cs;
 	
-    gtk_init(&argc, &argv);
+	gtk_init(&argc, &argv);
 
-    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    g_signal_connect(G_OBJECT(window), "delete-event", G_CALLBACK(gtk_main_quit), NULL);
+	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	g_signal_connect(G_OBJECT(window), "delete-event",
+			G_CALLBACK(gtk_main_quit), NULL);
 
-    gtk_widget_show_all(window);
-
+	gtk_widget_show_all(window);
+	
+	cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
+#ifdef HAVE_GTK3
+	cr = cairo_create (cs);
+#else
     pixmap = gdk_pixmap_new(window->window, width, height, -1);
     cr = gdk_cairo_create(pixmap);
-    cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
-    paint_win(cs, argc);
+#endif /* HAVE_GTK3 */ 
+	
+	paint_win(cs, argc);
 	cairo_set_source_surface (cr, cs, 0.0, 0.0);
 	cairo_rectangle (cr, 0.0, 0.0, width, height);
 	cairo_fill (cr);
-    image = gtk_image_new_from_pixmap(pixmap, NULL);
+	cairo_destroy (cr);
 
+#ifdef HAVE_GTK3
+	pixbuf = gdk_pixbuf_get_from_surface(cs, 0, 0, width, height);
+	image = gtk_image_new_from_pixbuf(pixbuf);
+#else    
+	image = gtk_image_new_from_pixmap(pixmap, NULL);
+#endif /* HAVE_GTK3 */ 
     gtk_container_add(GTK_CONTAINER(window), image);
-
-    gtk_widget_show(image);
+	gtk_widget_show(image);
 
     gtk_main();
 
