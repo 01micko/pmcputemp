@@ -234,6 +234,7 @@ int paint_icon(char style) {
 	cairo_set_source_rgb(c, fr, fg, fb);
 	cairo_show_text(c, deg);
 	cairo_surface_write_to_png (cs, temp_icon);
+	cairo_surface_destroy(cs);
 	cairo_destroy(c);
 	return temp;
 }
@@ -308,6 +309,7 @@ gboolean Update(gpointer ptr) {
 #endif /* HAVE_GTK3 */
 	temp_pixbuf = gdk_pixbuf_new_from_file(temp_icon,&gerror);
 	gtk_status_icon_set_from_pixbuf(tray_icon,temp_pixbuf);
+	g_object_unref(temp_pixbuf);
 	g_free(tooltip_out);
 	return 1;
 }
