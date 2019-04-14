@@ -6,9 +6,9 @@
 #include <libintl.h>
 #include <locale.h>
 
-#define PROG "pmcputemp-0.67"
+#define PROG "pmcputemp-0.70"
 #define AUTHOR "(c) Michael Amadio"
-#define DATE "2015"
+#define DATE "2019"
 #define LICENCE "GPLv2"
 #define _(STRING)    gettext(STRING)
 
