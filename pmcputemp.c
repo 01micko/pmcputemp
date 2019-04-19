@@ -1,5 +1,5 @@
 /* Status icon for cpu temperature */
-/* (c) Mick Amadio 2011-2015 GPL 2 , 01micko.com */
+/* (c) Mick Amadio 2011-2019 GPL 2 , 01micko.com */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,6 +40,7 @@
 #define CONF ".config/pmcputemp/pmcputemprc"
 #define _(STRING)    gettext(STRING)
 #define CPU_FILE "/proc/cpuinfo"
+#define MY_HOME getenv("HOME")
 
 char temp_icon[128];
 static char configdir[256];
@@ -51,20 +52,16 @@ char command[40];
 const char deg[2] = "o"; 
 char line[512];
 char freq_out[1024];
-int proc_out;
 gchar *tooltip_out;
 gchar *tool_tip;
-int x_procs;
+unsigned short x_procs;
 GdkPixbuf *temp_pixbuf;
 GtkStatusIcon *tray_icon;
 char style;
 int first_run = 1;
-
 unsigned int interval = 5000; /*update interval in milliseconds*/ 
-
 FILE *fp;
 FILE *ft;
-const char *home;
 GError *gerror = NULL;
 
 int mk_conf(char *mod) {
@@ -81,8 +78,7 @@ int mk_conf(char *mod) {
 }
 
 int cpu_temp() {
-	home = getenv("HOME");
-	conf[256] = snprintf(conf, sizeof(conf), "%s/%s", home, CONF);
+	conf[256] = snprintf(conf, sizeof(conf), "%s/%s", MY_HOME, CONF);
 	char temp_file_out[512];
 	int ret_try;
 	int temp_val;
@@ -90,7 +86,7 @@ int cpu_temp() {
 	while (1) {
 		if (tries > 10) {
 			fprintf(stderr,"Aborting\n");
-			show_about(1);
+			show_about(1, NULL);
 			exit(1);
 		}
 		fp = fopen(conf, "r");
@@ -98,7 +94,7 @@ int cpu_temp() {
 			ret_try = mk_conf(module);
 			if (ret_try != 0) {
 				fprintf(stderr, _("Unable to create configuration file.\n"));
-				show_about(1);
+				show_about(1, NULL);
 				exit (1); /* kill it */
 			} else {
 				fprintf(stdout, _("An attempt has been made to create " 
@@ -128,7 +124,7 @@ int cpu_temp() {
 		if (success_temp < 1) {
 			fprintf(stderr,_("Failed to read temperature, giving up.\n"));
 			fclose(ft);
-			show_about(1);
+			show_about(1, NULL);
 			exit(1);
 		}
 		fclose(ft);
@@ -142,20 +138,14 @@ int cpu_temp() {
 	return temperature;
 }
 
-/* makes the tray icon to be displayed */
+/* makes the tray icon image to be displayed */
 int paint_icon(char style) {
-	home = getenv("HOME");
-	int temp; 
-	if (style == 'x') {
-		temp = 00;
-	} else {
-		temp = cpu_temp();
-	}
+	int temp = cpu_temp();
 	configdir[256] = snprintf(configdir, 
-						sizeof(configdir),"%s/%s", home, CONFDIR);
+						sizeof(configdir),"%s/%s", MY_HOME, CONFDIR);
 	mkdir(configdir, 0755);
 	temp_icon[128] = snprintf(temp_icon,
-						sizeof(temp_icon),"%s/%s", home, ICON);
+						sizeof(temp_icon),"%s/%s", MY_HOME, ICON);
 	s[4] = snprintf(s, sizeof(s),"%d", temp);
 	float r1, g1, b1, r2, g2, b2, fr, fg, fb;
 	switch (style) {
@@ -206,8 +196,10 @@ int paint_icon(char style) {
 							(CAIRO_FORMAT_ARGB32, width, height);
 	cairo_t *c;
 	c = cairo_create(cs);
-	cairo_select_font_face(c, "sans", CAIRO_FONT_SLANT_NORMAL,
+	cairo_select_font_face(c, "Sans", CAIRO_FONT_SLANT_NORMAL,
 			CAIRO_FONT_WEIGHT_NORMAL);
+	cairo_font_face_t *f = cairo_get_font_face(c);
+	cairo_font_face_t *fnt = cairo_font_face_reference(f);
 	double x = 0;
 	double y = 0;
 	double aspect = 0.6;
@@ -234,6 +226,13 @@ int paint_icon(char style) {
 	cairo_set_source_rgb(c, fr, fg, fb);
 	cairo_show_text(c, deg);
 	cairo_surface_write_to_png (cs, temp_icon);
+	/* hanlde destruction of font_face */
+	unsigned int ref_cnt1 = cairo_font_face_get_reference_count(fnt);
+	while (ref_cnt1 > 1) {
+		cairo_font_face_destroy(fnt);
+		ref_cnt1--;
+	}
+	cairo_pattern_destroy(linear);
 	cairo_surface_destroy(cs);
 	cairo_destroy(c);
 	return temp;
@@ -250,26 +249,22 @@ char *split_string(char *var) {
 }
 
 /* get number of processors */
-int num_procs() {
+unsigned short num_procs() {
 	char line[512];
+	unsigned short proc_out = 0;
 	fp = fopen(CPU_FILE, "r");
 	if ( fp != NULL ) {
-		while (1) {
-			while (fgets(line, sizeof(line), fp)) {
-				if (strncmp(line,  "processor", 9) == 0) {
-					char *res = split_string(line);
-					res = strtok(res, "\n");
-					proc_out = atoi(res);
-				}
+		while (fgets(line, sizeof(line), fp)) {
+			if (strncmp(line, "processor", 9) == 0) {
+				proc_out++;
 			}
-			break;
 		}
 	}
 	fclose(fp);
 	return proc_out;
 }
 
-gchar *get_tt(int num){
+gchar *get_tt(unsigned short num){
 	int res1;
 	const char *proc = "CPU";
 	const char *temperature = (_("temperature"));
@@ -288,7 +283,7 @@ gchar *get_tt(int num){
 		}
 	}
 	fclose(fp);
-	tooltip_out = g_strdup_printf("%s %s\n%s = %d\n%s",proc, temperature, num_processors, (x_procs + 1), freq_out);
+	tooltip_out = g_strdup_printf("%s %s\n%s = %d\n%s",proc, temperature, num_processors, x_procs, freq_out);
 	return tooltip_out;
 }
 /* end tooltip */
@@ -314,20 +309,20 @@ gboolean Update(gpointer ptr) {
 	return 1;
 }
 
-void  view_popup_menu_about(GtkWidget *w, gpointer dummy) {
-	show_about(0); /* "About - menu */
+void  view_popup_menu_about() {
+	show_about(0, NULL); /* "About - menu */
 }
 
 #ifdef HAVE_SENSORS
 
-void view_sensors(GtkWidget *w, gpointer dummy) {
+void view_sensors() {
 	sensor_gui(0, NULL);
 }
 #endif /* HAVE_SENSORS */
 
 #ifdef HAVE_HELP
 
-void view_help(GtkWidget *w, gpointer dummy) {
+void view_help() {
 	fp = popen("mdview /usr/share/pmcputemp '' '' 'pmcputemp help' &", "r");
 	if (!fp) {
 		fprintf(stderr, "Failed to open help file");
@@ -337,9 +332,9 @@ void view_help(GtkWidget *w, gpointer dummy) {
 }
 #endif /* HAVE_HELP */
 
-
-void  quit(GtkWidget *w, gpointer dummy) {
+void  quit() {
     gtk_main_quit();
+    exit (EXIT_SUCCESS);
 }
 
 void tray_icon_on_menu(GtkStatusIcon *status_icon, guint button,guint activate_time, gpointer user_data) {
@@ -403,12 +398,11 @@ static GtkStatusIcon *create_tray_icon() {
 	tray_icon = gtk_status_icon_new();
 	g_signal_connect(G_OBJECT(tray_icon), "popup-menu", G_CALLBACK(tray_icon_on_menu), NULL);
 	
-	home = getenv("HOME");
-	temp_icon[128] = snprintf(temp_icon, sizeof(temp_icon),"%s/%s", home, ICON);
+	temp_icon[128] = snprintf(temp_icon, sizeof(temp_icon),"%s/%s", MY_HOME, ICON);
         
 	temp_pixbuf = gdk_pixbuf_new_from_file(temp_icon,&gerror);
 	gtk_status_icon_set_from_pixbuf(tray_icon,temp_pixbuf);
-							   
+	g_object_unref(temp_pixbuf);						   
 	gtk_status_icon_set_visible(tray_icon, TRUE);
 
 	return tray_icon;
@@ -419,7 +413,6 @@ int main(int argc, char **argv) {
 	bindtextdomain( "pmcputemp", "/usr/share/locale" ); 
 	textdomain( "pmcputemp" );
 	int i;
-	paint_icon('x'); /* paint it early with a dummy value */
 	if (argc < 5) { /* only accepts 1 - 10 and/or 'l' or 'd' */
 		for (i = 1; i < argc; i++) {
 			switch (argv[i][0]) {
@@ -454,11 +447,11 @@ int main(int argc, char **argv) {
 		fprintf(stderr,"Too many arguments, loading defaults\n");
 	}
 	
+	paint_icon(style); /* needed to kick it off */
 	gtk_init(&argc, &argv);
-	paint_icon(style);
 	create_tray_icon();
 	Update(NULL); /* needed to kick it off */
-	g_timeout_add(interval, Update, NULL); /*update after 5sec*/
+	g_timeout_add(interval, Update, NULL); /*update after 'interval' secs (default 5)*/
 	gtk_main();
 	
 	return 0;
