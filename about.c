@@ -6,7 +6,7 @@
 #include <libintl.h>
 #include <locale.h>
 
-#define PROG "pmcputemp-0.70"
+#define PROG "pmcputemp-0.71"
 #define AUTHOR "(c) Michael Amadio"
 #define DATE "2019"
 #define LICENCE "GPLv2"
@@ -21,7 +21,7 @@ static char *lang_font() {
 	char *cn = "zh";
 	char *jn = "ja";
 	char *kn = "ko";
-	char *font = "sans";
+	char *font = "Sans";
 	if ((strncmp(local, cn, 2) == 0) ||
 			(strncmp(local, jn, 2) == 0) || (strncmp(local, kn, 2) == 0)) {
 		font = "wenquanyi micro hei"; /*"m+1p+ipag"*/
@@ -53,7 +53,9 @@ static void paint_win(cairo_surface_t *cs, int msg) {
 	c = cairo_create(cs);
 	char *font_family = lang_font();
 	cairo_select_font_face(c, font_family, CAIRO_FONT_SLANT_NORMAL,
-		CAIRO_FONT_WEIGHT_NORMAL);
+			CAIRO_FONT_WEIGHT_NORMAL);
+	cairo_font_face_t *f = cairo_get_font_face(c);
+	cairo_font_face_t *fnt = cairo_font_face_reference(f);
 	cairo_rectangle(c, 0.0, 0.0, width, height);
 	cairo_pattern_t *linear = cairo_pattern_create_linear(0, 0, width, height); 
 	cairo_pattern_add_color_stop_rgb(linear, 0, r1, g1, b1); 
@@ -79,6 +81,14 @@ static void paint_win(cairo_surface_t *cs, int msg) {
 	cairo_set_source_rgb(c, 0.0, 0.0, 0.0);
 	cairo_show_text(c, LICENCE);
 	cairo_show_page(c);
+	cairo_font_face_destroy(fnt);
+	/* hanlde destruction of font_face */
+	unsigned int ref_cnt1 = cairo_font_face_get_reference_count(fnt);
+	while (ref_cnt1 > 1) {
+		cairo_font_face_destroy(fnt);
+		ref_cnt1--;
+	}
+	cairo_pattern_destroy(linear);
 	cairo_destroy(c);
 }
 
@@ -121,7 +131,8 @@ int show_about(gint argc, gchar *argv[]) {
 #else    
 	image = gtk_image_new_from_pixmap(pixmap, NULL);
 #endif /* HAVE_GTK3 */ 
-    gtk_container_add(GTK_CONTAINER(window), image);
+    cairo_surface_destroy(cs);
+	gtk_container_add(GTK_CONTAINER(window), image);
 	gtk_widget_show(image);
 
     gtk_main();
