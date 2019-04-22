@@ -5,8 +5,7 @@
 #include <stdlib.h>
 #include <libintl.h>
 #include <locale.h>
-
-#define PROG "pmcputemp-0.71"
+#include "pmcputemp.h"
 #define AUTHOR "(c) Michael Amadio"
 #define DATE "2019"
 #define LICENCE "GPLv2"
@@ -66,7 +65,7 @@ static void paint_win(cairo_surface_t *cs, int msg) {
 	cairo_set_font_size(c, 20.0);
 	cairo_move_to(c, 72.0, 40.0);
 	cairo_set_source_rgb(c, 0.0, 0.0, 0.0);
-	cairo_show_text(c, PROG);
+	cairo_show_text(c, PRG " " VER);
 	cairo_set_font_size(c, 13.0);
 	cairo_move_to(c, 27.0, 81.0);
 	cairo_set_source_rgb(c, 0.0, 0.0, 0.0);
