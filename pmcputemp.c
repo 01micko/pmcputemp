@@ -29,7 +29,12 @@
 #include <math.h>
 #include <libintl.h>
 #include <locale.h>
-#include "about.h"
+#ifdef HAVE_MENU
+	#include "about.h"
+#endif /* HAVE_MENU */
+#ifndef HAVE_MENU
+	#include "pmcputemp.h"
+#endif
 #ifdef HAVE_SENSORS
 	#include "lm.h"
 #endif /* HAVE_SENSORS */
@@ -51,7 +56,7 @@ char command[40];
 /* poor man's degree symbol for cairo's poor font handling */
 const char deg[2] = "o"; 
 char line[512];
-char freq_out[1024];
+char freq_out[512];
 gchar *tooltip_out;
 gchar *tool_tip;
 unsigned short x_procs;
@@ -86,7 +91,11 @@ int cpu_temp() {
 	while (1) {
 		if (tries > 10) {
 			fprintf(stderr,"Aborting\n");
+		#ifdef HAVE_MENU
 			show_about(1, NULL);
+		#else
+			printf("It seems your processor is unsupported. Exiting\n");
+		#endif /* HAVE_MENU */
 			exit(1);
 		}
 		fp = fopen(conf, "r");
@@ -94,8 +103,12 @@ int cpu_temp() {
 			ret_try = mk_conf(module);
 			if (ret_try != 0) {
 				fprintf(stderr, _("Unable to create configuration file.\n"));
+		#ifdef HAVE_MENU
 				show_about(1, NULL);
-				exit (1); /* kill it */
+		#else
+			printf("It seems your processor is unsupported. Exiting\n");
+		#endif /* HAVE_MENU */
+			exit (1); /* kill it */
 			} else {
 				fprintf(stdout, _("An attempt has been made to create " 
 							"a configuration file\n"));
@@ -124,7 +137,11 @@ int cpu_temp() {
 		if (success_temp < 1) {
 			fprintf(stderr,_("Failed to read temperature, giving up.\n"));
 			fclose(ft);
-			show_about(1, NULL);
+		#ifdef HAVE_MENU
+				show_about(1, NULL);
+		#else
+			printf("It seems your processor is unsupported. Exiting\n");
+		#endif /* HAVE_MENU */
 			exit(1);
 		}
 		fclose(ft);
@@ -283,7 +300,11 @@ gchar *get_tt(unsigned short num){
 		}
 	}
 	fclose(fp);
-	tooltip_out = g_strdup_printf("%s %s\n%s = %d\n%s",proc, temperature, num_processors, x_procs, freq_out);
+	#ifdef HAVE_MENU
+		tooltip_out = g_strdup_printf("%s %s\n%s = %d\n%s",proc, temperature, num_processors, x_procs, freq_out);
+	#else
+		tooltip_out = g_strdup_printf("%s %s\n%s %s\n%s = %d\n%s",PRG, VER, proc, temperature, num_processors, x_procs, freq_out);
+	#endif
 	return tooltip_out;
 }
 /* end tooltip */
@@ -309,9 +330,11 @@ gboolean Update(gpointer ptr) {
 	return 1;
 }
 
+#ifdef HAVE_MENU
 void  view_popup_menu_about() {
 	show_about(0, NULL); /* "About - menu */
 }
+#endif /* HAVE_MENU */
 
 #ifdef HAVE_SENSORS
 
@@ -332,56 +355,59 @@ void view_help() {
 }
 #endif /* HAVE_HELP */
 
+#ifdef HAVE_MENU
 void  quit() {
     gtk_main_quit();
     exit (EXIT_SUCCESS);
 }
+#endif /* HAVE_MENU */
 
+#ifdef HAVE_MENU
 void tray_icon_on_menu(GtkStatusIcon *status_icon, guint button,guint activate_time, gpointer user_data) {
 	/* right click menu */
 	GtkWidget *menu, *menuitem, *iconw;
 	menu = gtk_menu_new();
 	
-#ifdef HAVE_HELP
-	menuitem = gtk_image_menu_item_new_with_label(_("Help"));
-	#ifdef HAVE_GTK3
-	iconw = gtk_image_new_from_icon_name("help-contents", GTK_ICON_SIZE_MENU);
-	#else
-	iconw = gtk_image_new_from_stock(GTK_STOCK_HELP, GTK_ICON_SIZE_MENU);
-    #endif /* HAVE_GTK3 */
-    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menuitem), iconw);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-	g_signal_connect(menuitem, "activate", (GCallback) view_help, status_icon);
-#endif /* HAVE_HELP */
+	#ifdef HAVE_HELP
+		menuitem = gtk_image_menu_item_new_with_label(_("Help"));
+		#ifdef HAVE_GTK3
+		iconw = gtk_image_new_from_icon_name("help-contents", GTK_ICON_SIZE_MENU);
+		#else
+		iconw = gtk_image_new_from_stock(GTK_STOCK_HELP, GTK_ICON_SIZE_MENU);
+	    #endif /* HAVE_GTK3 */
+	    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menuitem), iconw);
+	    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
+		g_signal_connect(menuitem, "activate", (GCallback) view_help, status_icon);
+	#endif /* HAVE_HELP */
 	
-#ifdef HAVE_SENSORS
-	menuitem = gtk_image_menu_item_new_with_label(_("Info"));
-	#ifdef HAVE_GTK3
-	iconw = gtk_image_new_from_icon_name("dialog-information", GTK_ICON_SIZE_MENU);
-	#else
-	iconw = gtk_image_new_from_stock(GTK_STOCK_INFO, GTK_ICON_SIZE_MENU);
-    #endif /* HAVE_GTK3 */
-    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menuitem), iconw);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-	g_signal_connect(menuitem, "activate", (GCallback) view_sensors, status_icon);
-#endif /* HAVE_SENSORS */
+	#ifdef HAVE_SENSORS
+		menuitem = gtk_image_menu_item_new_with_label(_("Info"));
+		#ifdef HAVE_GTK3
+		iconw = gtk_image_new_from_icon_name("dialog-information", GTK_ICON_SIZE_MENU);
+		#else
+		iconw = gtk_image_new_from_stock(GTK_STOCK_INFO, GTK_ICON_SIZE_MENU);
+	    #endif /* HAVE_GTK3 */
+	    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menuitem), iconw);
+	    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
+		g_signal_connect(menuitem, "activate", (GCallback) view_sensors, status_icon);
+	#endif /* HAVE_SENSORS */
 	
 	menuitem = gtk_image_menu_item_new_with_label(_("About"));
-#ifdef HAVE_GTK3
-	iconw = gtk_image_new_from_icon_name("help-about", GTK_ICON_SIZE_MENU);
-#else
-	iconw = gtk_image_new_from_stock(GTK_STOCK_ABOUT, GTK_ICON_SIZE_MENU);
-#endif /* HAVE_GTK3 */
+	#ifdef HAVE_GTK3
+		iconw = gtk_image_new_from_icon_name("help-about", GTK_ICON_SIZE_MENU);
+	#else
+		iconw = gtk_image_new_from_stock(GTK_STOCK_ABOUT, GTK_ICON_SIZE_MENU);
+	#endif /* HAVE_GTK3 */
     gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menuitem), iconw);
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
 	g_signal_connect(menuitem, "activate", (GCallback) view_popup_menu_about, status_icon);
 	
 	menuitem = gtk_image_menu_item_new_with_label(_("Quit"));
-#ifdef HAVE_GTK3    
-    iconw = gtk_image_new_from_icon_name("application-exit", GTK_ICON_SIZE_MENU);
-#else
-    iconw = gtk_image_new_from_stock(GTK_STOCK_QUIT, GTK_ICON_SIZE_MENU);
-#endif /* HAVE_GTK3 */     
+	#ifdef HAVE_GTK3    
+	    iconw = gtk_image_new_from_icon_name("application-exit", GTK_ICON_SIZE_MENU);
+	#else
+	    iconw = gtk_image_new_from_stock(GTK_STOCK_QUIT, GTK_ICON_SIZE_MENU);
+	#endif /* HAVE_GTK3 */
     gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menuitem), iconw);
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
     g_signal_connect(menuitem, "activate", (GCallback) quit, status_icon);
@@ -389,6 +415,7 @@ void tray_icon_on_menu(GtkStatusIcon *status_icon, guint button,guint activate_t
 	gtk_widget_show_all(menu);
 	gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL, button, gdk_event_get_time(NULL));
 }
+#endif /* HAVE_MENU */
 
 static GtkStatusIcon *create_tray_icon() {
 	if (first_run == 0) {
@@ -396,8 +423,9 @@ static GtkStatusIcon *create_tray_icon() {
 		first_run = 1;
 	}
 	tray_icon = gtk_status_icon_new();
-	g_signal_connect(G_OBJECT(tray_icon), "popup-menu", G_CALLBACK(tray_icon_on_menu), NULL);
-	
+	#ifdef HAVE_MENU
+		g_signal_connect(G_OBJECT(tray_icon), "popup-menu", G_CALLBACK(tray_icon_on_menu), NULL);
+	#endif /* HAVE_MENU */
 	temp_icon[128] = snprintf(temp_icon, sizeof(temp_icon),"%s/%s", MY_HOME, ICON);
         
 	temp_pixbuf = gdk_pixbuf_new_from_file(temp_icon,&gerror);

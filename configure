@@ -6,7 +6,8 @@ GTKFLAGS=gtk+-2.0
 PREFIX=/usr/local
 sensors=no
 help=no
-
+menu=true
+MENU=-DHAVE_MENU
 #parameters
 while [ $# != 0 ]; do
 	I=1
@@ -17,6 +18,7 @@ while [ $# != 0 ]; do
 			--mandir*) MANDIR=`echo $1|cut -d '=' -f2`;;
 			--enable-sensors*)SENSORS=-DHAVE_SENSORS;sensors=true;;
 			--with-help)HELP=-DHAVE_HELP;help=true;;
+			--disable-menu)MENU='';menu=false;;
 			--with-gtk3)GTKFLAGS=gtk+-3.0;;
 			-h|--help)	echo '
  -h|--help    show this help
@@ -25,6 +27,7 @@ while [ $# != 0 ]; do
  --mandir=	set man dir, eg: --mandir=/usr/man, default '$PREFIX'/share/man
  --enable-sensors	useful if lm_sensors is installed, else ignored
  --with-help	useful if \"mdview\" markdown viewer is installed 
+ --disable-menu	useful for low RAM machines - enable-sensors and with-help are ignored 
  --with-gtk3	enables gtk+-3.0 : default is gtk+-2.0 '
 				exit;; #
 			
@@ -55,46 +58,51 @@ if [ "$?" -ne 127 ];then  echo "	ok"
   else echo -e "not found \naborting" && exit
 fi
 
-if [ "$sensors" = "true" ];then
-	echo -n "checking for lm_sensors...	"
-	type sensors 2>&1 >/dev/null
-	if [ "$?" -eq 0 ];then 
-		echo "ok"
-		sensors=yes
-		SENSORS=-DHAVE_SENSORS
-		SOBJ=lm.o
-		LMOBJ='
+if [ "$menu" = "false" ];then
+	sensors=false; help=false; menu=no
+	echo "sensors and help are ignored"
+else
+	if [ "$sensors" = "true" ];then
+		echo -n "checking for lm_sensors...	"
+		type sensors 2>&1 >/dev/null
+		if [ "$?" -eq 0 ];then 
+			echo "ok"
+			sensors=yes
+			SENSORS=-DHAVE_SENSORS
+			SOBJ=lm.o
+			LMOBJ='
 lm.o: lm.c
 	$(CC) -o $@ $(CFLAGS) $(GTK3) -c $^
-'
-		LMPOT=lm.c
-	else
-		echo "not installed"
-		echo \
-		"You requested \"--enable-sensors\" however lm_sensors is not installed"
-		echo "Building with sensors disabled."
-		sensors=no
-		SENSORS=""
+	'
+			LMPOT=lm.c
+		else
+			echo "not installed"
+			echo \
+			"You requested \"--enable-sensors\" however lm_sensors is not installed"
+			echo "Building with sensors disabled."
+			sensors=no
+			SENSORS=""
+		fi
 	fi
-fi
-if [ "$help" = "true" ];then
-	echo -n "checking for mdview...	"
-	type mdview 2>&1 >/dev/null
-	if [ "$?" -eq 0 ];then 
-		echo "	ok"
-		help=yes
-		HELP=-DHAVE_HELP
-		HELP_INST="
+	if [ "$help" = "true" ];then
+		echo -n "checking for mdview...	"
+		type mdview 2>&1 >/dev/null
+		if [ "$?" -eq 0 ];then 
+			echo "	ok"
+			help=yes
+			HELP=-DHAVE_HELP
+			HELP_INST="
 	install -d -m 0755 /usr/share/pmcputemp
 	install -m 0644 README.md /usr/share/pmcputemp/index.md"
-	else
-		echo "not installed"
-		echo \
-		"You requested \"--with-help\" however mdview is not installed"
-		echo "Building with help disabled."
-		help=no
-		HELP=""
-		HELP_INST=""
+		else
+			echo "not installed"
+			echo \
+			"You requested \"--with-help\" however mdview is not installed"
+			echo "Building with help disabled."
+			help=no
+			HELP=""
+			HELP_INST=""
+		fi
 	fi
 fi
 echo
@@ -104,12 +112,14 @@ libdir: 	"${LIBDIR}"
 mandir:		"${MANDIR}"
 locdir:		"${LOCDIR}"
 sensors:	"$sensors"
-help:		"$help""
+help:		"$help"
+menu		"$menu""
 [ "$GTKFLAGS" = "gtk+-2.0" ] && echo "gtk version:	gtk+-2.0" ||\
 echo "gtk version:	$GTKFLAGS"
 [ "$GTKFLAGS" = "gtk+-3.0" ] && GTK3=-DHAVE_GTK3
 echo "If this looks wrong run $0 again"
 
+if [ "$menu" = "true" ];then
 cat > Makefile << _MAKE
 CC=gcc
 PREFIX=\$(DESTDIR)$PREFIX
@@ -122,6 +132,7 @@ CFLAGS=-Wall -pedantic -std=gnu99 -g -I/usr/include \`pkg-config --libs --cflags
 LDFLAGS=-Wall -g \`pkg-config --libs \$(GTKFLAGS) cairo\` -L\$(LIBDIR) -lX11
 GTK3=$GTK3
 HELP=$HELP
+MENU=$MENU
 
 all : pmcputemp
 
@@ -131,7 +142,7 @@ pmcputemp : pmcputemp.o about.o $SOBJ
 $PO_FILES
 
 pmcputemp.o : pmcputemp.c
-	\$(CC) -o \$@ \$(CFLAGS) \$(SENSORS) \$(GTK3) \$(HELP) -c \$^
+	\$(CC) -o \$@ \$(CFLAGS) \$(SENSORS) \$(GTK3) \$(HELP) \$(MENU) -c \$^
 
 about.o : about.c
 	\$(CC) -o \$@ \$(CFLAGS) \$(GTK3) -c \$^
@@ -165,3 +176,57 @@ $PO_UNINSTALL
 	rm -rf /usr/share/pmcputemp/
 
 _MAKE
+else
+cat > Makefile << _MAKE
+CC=gcc
+PREFIX=\$(DESTDIR)$PREFIX
+LIBDIR=\$(DESTDIR)${LIBDIR}
+MANDIR=\$(DESTDIR)${MANDIR}
+LOCDIR=\$(DESTDIR)$LOCDIR
+GTKFLAGS=${GTKFLAGS}
+SENSORS=$SENSORS
+CFLAGS=-Wall -pedantic -std=gnu99 -g -I/usr/include \`pkg-config --libs --cflags \$(GTKFLAGS) cairo\`
+LDFLAGS=-Wall -g \`pkg-config --libs \$(GTKFLAGS) cairo\` -L\$(LIBDIR) -lX11
+GTK3=$GTK3
+HELP=$HELP
+
+all : pmcputemp
+
+pmcputemp : pmcputemp.o
+	\$(CC) -o \$@ \$^ \$(LDFLAGS)
+	xgettext --keyword="_" pmcputemp.c -o po/pmcputemp.pot
+$PO_FILES
+
+pmcputemp.o : pmcputemp.c
+	\$(CC) -o \$@ \$(CFLAGS) \$(GTK3) -c \$^
+
+install:
+	install -d -m 0755 \$(PREFIX)/bin
+	install -d -m 0755 \$(MANDIR)/man1
+$PO_DIR
+	install -s -m 0755 pmcputemp \$(PREFIX)/bin/
+	install -m 0755 pmcputemp.sh \$(PREFIX)/bin/
+	install -m 0644 pmcputemp.1 \$(MANDIR)/man1/pmcputemp.1
+$HELP_INST
+$PO_INSTALL
+	install -d -m 0755 /usr/share/doc/nls/pmcputemp
+	install -m 0644 po/pmcputemp.pot /usr/share/doc/nls/pmcputemp/ 
+
+clean:
+	-rm -f *.o pmcputemp po/*gmo
+
+distclean:
+
+	rm -f Makefile
+
+uninstall:
+
+	rm -f \$(PREFIX)/bin/pmcputemp
+	rm -f \$(PREFIX)/bin/pmcputemp.sh
+	rm -f \$(MANDIR)/man1/pmcputemp.1
+$PO_UNINSTALL
+	rm -rf /usr/share/doc/nls/pmcputemp/
+	rm -rf /usr/share/pmcputemp/
+
+_MAKE
+fi
