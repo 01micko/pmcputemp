@@ -13,8 +13,9 @@ void read_sensors() {
 		return;
 	int size = fread(buf, 1, sizeof(buf), fp);
 	pclose(fp);
-	if (size >= 1024)
+	if (size >= 1024) {
 		fprintf(stderr, "Too big to read\n");
+	}
 		return;
 }
 
