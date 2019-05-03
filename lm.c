@@ -32,7 +32,7 @@ int sensor_gui(gint argc, gchar *argv[]) {
 	gchar *title = (_("Sensors"));
 	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	g_signal_connect( G_OBJECT( window ), "delete-event",
-							G_CALLBACK( gtk_main_quit ), NULL );
+							G_CALLBACK( gtk_widget_destroy ), NULL );
 	gtk_container_set_border_width(GTK_CONTAINER(window),10);
 	gtk_window_set_title (GTK_WINDOW(window), title);
 	gtk_widget_show  (window);
