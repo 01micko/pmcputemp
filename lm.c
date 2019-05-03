@@ -26,6 +26,8 @@ int sensor_gui(gint argc, gchar *argv[]) {
 	GtkWidget *label_head;
 	GtkWidget *label;
     GtkWidget *box;
+    PangoFontDescription *sans_font = pango_font_description_from_string ("Sans 12");
+    PangoFontDescription *mono_font = pango_font_description_from_string ("Monospace 10");
     
 	gtk_init(&argc, &argv);
 	
@@ -51,11 +53,9 @@ int sensor_gui(gint argc, gchar *argv[]) {
 	gchar *heading = (_("Output from lm_sensors"));
 	
 	label_head = gtk_label_new (heading);
-	gtk_widget_modify_font (label_head,
-				pango_font_description_from_string ("Sans 12"));
+	gtk_widget_modify_font (label_head, sans_font);
 	label = gtk_label_new (message);
-	gtk_widget_modify_font (label,
-				pango_font_description_from_string ("Monospace 10"));
+	gtk_widget_modify_font (label, mono_font);
 	gtk_label_set_line_wrap(GTK_LABEL(label_head), TRUE);
 	gtk_box_pack_start (GTK_BOX (box), label_head, TRUE, TRUE, 5);
 	gtk_widget_show(label_head);
@@ -64,6 +64,8 @@ int sensor_gui(gint argc, gchar *argv[]) {
 	gtk_widget_show(label);
 	
 	gtk_main();
+	pango_font_description_free(sans_font);
+	pango_font_description_free(mono_font);
 	
 	return 0;
 }
