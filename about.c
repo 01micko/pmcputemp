@@ -7,7 +7,7 @@
 #include <locale.h>
 #include "pmcputemp.h"
 #define AUTHOR "(c) Michael Amadio"
-#define DATE "2019"
+#define DATE "2020"
 #define LICENCE "GPLv2"
 #define _(STRING)    gettext(STRING)
 
@@ -54,7 +54,7 @@ static void paint_win(cairo_surface_t *cs, int msg) {
 	cairo_select_font_face(c, font_family, CAIRO_FONT_SLANT_NORMAL,
 			CAIRO_FONT_WEIGHT_NORMAL);
 	cairo_font_face_t *f = cairo_get_font_face(c);
-	cairo_font_face_t *fnt = cairo_font_face_reference(f);
+	cairo_font_face_t *fna = cairo_font_face_reference(f);
 	cairo_rectangle(c, 0.0, 0.0, width, height);
 	cairo_pattern_t *linear = cairo_pattern_create_linear(0, 0, width, height); 
 	cairo_pattern_add_color_stop_rgb(linear, 0, r1, g1, b1); 
@@ -80,11 +80,10 @@ static void paint_win(cairo_surface_t *cs, int msg) {
 	cairo_set_source_rgb(c, 0.0, 0.0, 0.0);
 	cairo_show_text(c, LICENCE);
 	cairo_show_page(c);
-	cairo_font_face_destroy(fnt);
 	/* hanlde destruction of font_face */
-	unsigned int ref_cnt1 = cairo_font_face_get_reference_count(fnt);
+	unsigned int ref_cnt1 = cairo_font_face_get_reference_count(fna);
 	while (ref_cnt1 > 1) {
-		cairo_font_face_destroy(fnt);
+		cairo_font_face_destroy(fna);
 		ref_cnt1--;
 	}
 	cairo_pattern_destroy(linear);
