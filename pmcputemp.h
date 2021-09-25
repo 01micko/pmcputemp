@@ -2,6 +2,6 @@
 #define pmcputemp_h__
 
 #define PRG "Pmcputemp"
-#define VER "0.80"
+#define VER "0.90"
 
 #endif
