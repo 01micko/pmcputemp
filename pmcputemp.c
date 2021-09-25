@@ -413,7 +413,7 @@ void tray_icon_on_menu(GtkStatusIcon *status_icon, guint button,guint activate_t
     g_signal_connect(menuitem, "activate", (GCallback) quit, status_icon);
 	
 	gtk_widget_show_all(menu);
-	gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL, button, gdk_event_get_time(NULL));
+	gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL, button, gtk_get_current_event_time());
 }
 #endif /* HAVE_MENU */
 
