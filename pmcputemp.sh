@@ -1,6 +1,6 @@
 #!/bin/sh
 
-TMP=~/.config/pmcputemp
+TEMP=~/.config/pmcputemp
 arch=`uname -m`
 
 load_module_func() {
@@ -14,7 +14,7 @@ load_module_func() {
 		if [ $ret -ne 0 ];then
 			modprobe $m 2>/dev/null # load if not already
 		fi
-		check_temp_data_exists # returns 0 on success
+		check_temp_data_exists $m # returns 0 on success
 		dat=$?
 		if [ $dat -eq 0 ];then
 			return 0 # success, break here
@@ -46,18 +46,30 @@ find_func() {
 check_temp_data_exists() {
 	#echo "checking data" # COMMENT THIS IN REAL LIFE
 	# the rough order is Intel, AMD, whatever else
-	for a in `find /sys/devices/platform -type f -name 'temp*_input'|sort` \
+	FILE=
+	if [ -n "$1" ];then
+		for a in `find /sys/devices/ -type f -name 'name'|xargs grep $1`
+		do 
+			for z in `find ${a/name:$1/} -name 'temp*_input'|sort`
+			do
+				find_func "$z"
+				[ -z "$FILE" ] && continue || break # if we found data break
+			done
+		done
+	else
+		for a in `find /sys/devices/platform -type f -name 'temp*_input'|sort` \
 			`find /sys/devices/pci* -type f -name 'temp*_input'|sort` \
 			`find /sys/devices/virtual -type f -name 'temp'|sort`
-	do find_func "$a"
-		[ -z "$FILE" ] && continue || break # if we found data break
-	done
-	if [ ! "$FILE" ];then echo "Failed to find file" && return 1 # bail out
+		do find_func "$a"
+			[ -z "$FILE" ] && continue || break # if we found data break
+		done
+	fi
+	if [ ! "$FILE" ];then echo "Failed to find file, trying again." && return 1 # bail out
 	fi
 	# if we get here we found it, so we write to file
-	[ ! -d $TMP ] && mkdir $TMP
-	echo -e "\"${FILE}\" is written to : \n$TMP"
-	echo -n ${FILE} > $TMP/pmcputemprc # UNCOMMENT THIS IN REAL LIFE
+	[ ! -d $TEMP ] && mkdir $TEMP
+	echo -e "\"${FILE}\" is written to : \n$TEMP"
+	echo -n ${FILE} > $TEMP/pmcputemprc # UNCOMMENT THIS IN REAL LIFE
 	return 0
 }
 
