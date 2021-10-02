@@ -128,8 +128,8 @@ MANDIR=\$(DESTDIR)${MANDIR}
 LOCDIR=\$(DESTDIR)$LOCDIR
 GTKFLAGS=${GTKFLAGS}
 SENSORS=$SENSORS
-CFLAGS=-Wall -pedantic -std=gnu99 -g -I/usr/include \`pkg-config --libs --cflags \$(GTKFLAGS) cairo\`
-LDFLAGS=-Wall -g \`pkg-config --libs \$(GTKFLAGS) cairo\` -L\$(LIBDIR) -lX11
+CFLAGS=-Wall -pedantic -std=gnu99 -Os -fomit-frame-pointer -ffunction-sections -fdata-sections -fmerge-all-constants -I/usr/include \`pkg-config --libs --cflags \$(GTKFLAGS) cairo\`
+LDFLAGS=-Wall  -Wl,--gc-sections -Wl,--sort-common -Wl,-s \`pkg-config --libs \$(GTKFLAGS) cairo\` -L\$(LIBDIR) -lX11
 GTK3=$GTK3
 HELP=$HELP
 MENU=$MENU
