@@ -40,25 +40,25 @@
 #endif /* HAVE_SENSORS */
 
 #define _GNU_SOURCE
-#define ICON ".config/pmcputemp/temp.png"
-#define CONFDIR ".config/pmcputemp"
-#define CONF ".config/pmcputemp/pmcputemprc"
+#define ICON "temp.png"
+#define CONFDIR "pmcputemp"
+#define CONF "pmcputemprc"
 #define _(STRING)    gettext(STRING)
 #define CPU_FILE "/proc/cpuinfo"
-#define MY_HOME getenv("HOME")
 
-char temp_icon[128];
-static char configdir[256];
-static char conf[256];
-char s[4];
+//char temp_icon[128];
+static gchar *configdir;
+static gchar *conf;
+char s[5];
 char *module = NULL;
-char command[40];
+char command[42];
 /* poor man's degree symbol for cairo's poor font handling */
 const char deg[2] = "o"; 
 char line[512];
 char freq_out[512];
 gchar *tooltip_out;
 gchar *tool_tip;
+gchar *temp_icon;
 unsigned short x_procs;
 GdkPixbuf *temp_pixbuf;
 GtkStatusIcon *tray_icon;
@@ -83,7 +83,6 @@ int mk_conf(char *mod) {
 }
 
 int cpu_temp() {
-	conf[256] = snprintf(conf, sizeof(conf), "%s/%s", MY_HOME, CONF);
 	char temp_file_out[512];
 	int ret_try;
 	int temp_val;
@@ -147,7 +146,7 @@ int cpu_temp() {
 		fclose(ft);
 		break;
 	}
-	if ((temp_val < 10000) || (temp_val > 100000)) {
+	if ((temp_val < 10000) || (temp_val > 125000)) {
 		fprintf(stderr,_("Temperature out of range or bad value, exiting.\n"));
 		exit(1);
 	}
@@ -158,11 +157,7 @@ int cpu_temp() {
 /* makes the tray icon image to be displayed */
 int paint_icon(char style) {
 	int temp = cpu_temp();
-	configdir[256] = snprintf(configdir, 
-						sizeof(configdir),"%s/%s", MY_HOME, CONFDIR);
-	mkdir(configdir, 0755);
-	temp_icon[128] = snprintf(temp_icon,
-						sizeof(temp_icon),"%s/%s", MY_HOME, ICON);
+	float font_size = 14.0;
 	s[4] = snprintf(s, sizeof(s),"%d", temp);
 	float r1, g1, b1, r2, g2, b2, fr, fg, fb;
 	switch (style) {
@@ -204,7 +199,7 @@ int paint_icon(char style) {
 		b1 = 0.4; b2 = 0.4;		
 	}
 	if (temp > 99) {
-		exit (1);
+		font_size - 10.0;
 	}
 	double width = 24;
 	double height = 24;
@@ -234,7 +229,7 @@ int paint_icon(char style) {
 	cairo_pattern_add_color_stop_rgb(linear, 1, r2, g2, b2);
 	cairo_set_source(c, linear);
 	cairo_fill_preserve (c);
-	cairo_set_font_size(c, 14.0);
+	cairo_set_font_size(c, font_size);
 	cairo_move_to(c, 1.0, 17.0);
 	cairo_set_source_rgb(c, fr, fg, fb);
 	cairo_show_text(c, s);
@@ -258,10 +253,10 @@ int paint_icon(char style) {
 /* tooltip */
 char *split_string(char *var) {
 	char *buf = var;
-	const char s[2] = ":";
+	const char x[2] = ":";
 	char *token;
-	token = strtok(buf, s);
-	token = strtok(NULL , s);
+	token = strtok(buf, x);
+	token = strtok(NULL , x);
 	return token;
 }
 
@@ -426,7 +421,6 @@ static GtkStatusIcon *create_tray_icon() {
 	#ifdef HAVE_MENU
 		g_signal_connect(G_OBJECT(tray_icon), "popup-menu", G_CALLBACK(tray_icon_on_menu), NULL);
 	#endif /* HAVE_MENU */
-	temp_icon[128] = snprintf(temp_icon, sizeof(temp_icon),"%s/%s", MY_HOME, ICON);
         
 	temp_pixbuf = gdk_pixbuf_new_from_file(temp_icon,&gerror);
 	gtk_status_icon_set_from_pixbuf(tray_icon,temp_pixbuf);
@@ -475,12 +469,21 @@ int main(int argc, char **argv) {
 		fprintf(stderr,"Too many arguments, loading defaults\n");
 	}
 	
+	temp_icon = g_build_filename(g_get_user_runtime_dir(), ICON, NULL);
+	configdir = g_build_filename(g_get_user_config_dir(), CONFDIR, NULL);
+	mkdir(configdir, 0755);
+	conf = g_build_filename(g_get_user_config_dir(), CONFDIR, CONF, NULL);
+	
 	paint_icon(style); /* needed to kick it off */
 	gtk_init(&argc, &argv);
 	create_tray_icon();
 	Update(NULL); /* needed to kick it off */
 	g_timeout_add(interval, Update, NULL); /*update after 'interval' secs (default 5)*/
 	gtk_main();
+	
+	g_free(temp_icon);
+	g_free(configdir);
+	g_free(conf);
 	
 	return 0;
 }
