@@ -158,6 +158,7 @@ int cpu_temp() {
 int paint_icon(char style) {
 	int temp = cpu_temp();
 	float font_size = 14.0;
+	float deg_size = 8.0;
 	s[4] = snprintf(s, sizeof(s),"%d", temp);
 	float r1, g1, b1, r2, g2, b2, fr, fg, fb;
 	switch (style) {
@@ -199,8 +200,10 @@ int paint_icon(char style) {
 		b1 = 0.4; b2 = 0.4;		
 	}
 	if (temp > 99) {
-		font_size - 10.0;
+		font_size = 10.0;
+		deg_size = 6.0;
 	}
+	
 	double width = 24;
 	double height = 24;
 	cairo_surface_t *cs;
@@ -233,7 +236,7 @@ int paint_icon(char style) {
 	cairo_move_to(c, 1.0, 17.0);
 	cairo_set_source_rgb(c, fr, fg, fb);
 	cairo_show_text(c, s);
-	cairo_set_font_size(c, 8.0);
+	cairo_set_font_size(c, deg_size);
 	cairo_move_to(c, 18.0, 11.0);
 	cairo_set_source_rgb(c, fr, fg, fb);
 	cairo_show_text(c, deg);
@@ -343,7 +346,7 @@ void view_sensors() {
 void view_help() {
 	fp = popen("mdview /usr/share/pmcputemp '' '' 'pmcputemp help' &", "r");
 	if (!fp) {
-		fprintf(stderr, "Failed to open help file");
+		fprintf(stderr, "Failed to open help file\n");
 		return;
 	}
 	pclose(fp);
