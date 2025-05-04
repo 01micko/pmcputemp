@@ -7,7 +7,7 @@
 #include <locale.h>
 #include "pmcputemp.h"
 #define AUTHOR "(c) Michael Amadio"
-#define DATE "2020"
+#define DATE "2025"
 #define LICENCE "GPLv2"
 #define _(STRING)    gettext(STRING)
 

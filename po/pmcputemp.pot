@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-04-19 12:55+1000\n"
+"POT-Creation-Date: 2025-05-03 22:33+1000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,71 +17,79 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: pmcputemp.c:96
+#: pmcputemp.c:105
 #, c-format
 msgid "Unable to create configuration file.\n"
 msgstr ""
 
-#: pmcputemp.c:100
+#: pmcputemp.c:113
 #, c-format
 msgid "An attempt has been made to create a configuration file\n"
 msgstr ""
 
-#: pmcputemp.c:108
+#: pmcputemp.c:121
 #, c-format
 msgid "File is empty, trying again\n"
 msgstr ""
 
-#: pmcputemp.c:117
+#: pmcputemp.c:130
 #, c-format
 msgid "Can't open configured file, deleting configuration file\n"
 msgstr ""
 
-#: pmcputemp.c:125
+#: pmcputemp.c:138
 #, c-format
 msgid "Failed to read temperature, giving up.\n"
 msgstr ""
 
-#: pmcputemp.c:134
+#: pmcputemp.c:151
 #, c-format
 msgid "Temperature out of range or bad value, exiting.\n"
 msgstr ""
 
-#: pmcputemp.c:270
+#: pmcputemp.c:288
 msgid "temperature"
 msgstr ""
 
-#: pmcputemp.c:271
+#: pmcputemp.c:289
 msgid "Processors"
 msgstr ""
 
-#: pmcputemp.c:346
+#: pmcputemp.c:374
 msgid "Help"
 msgstr ""
 
-#: pmcputemp.c:358
+#: pmcputemp.c:386
 msgid "Info"
 msgstr ""
 
-#: pmcputemp.c:369
+#: pmcputemp.c:397
 msgid "About"
 msgstr ""
 
-#: pmcputemp.c:379
+#: pmcputemp.c:407
 msgid "Quit"
 msgstr ""
 
-#: pmcputemp.c:437
+#: pmcputemp.c:466
 #, c-format
 msgid ""
 "Polling interval out of range. Use 1 to 10\n"
 "Using default 5 seconds\n"
 msgstr ""
 
-#: about.c:33
+#: about.c:32
 msgid "A simple tray cpu temperature monitor"
 msgstr ""
 
-#: about.c:50
+#: about.c:49
 msgid "unfortunately does not work on your system"
+msgstr ""
+
+#: lm.c:35
+msgid "Sensors"
+msgstr ""
+
+#: lm.c:54
+msgid "Output from lm_sensors"
 msgstr ""

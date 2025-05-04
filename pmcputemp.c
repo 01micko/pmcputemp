@@ -65,7 +65,7 @@ GtkStatusIcon *tray_icon;
 char style;
 int first_run = 1;
 unsigned int interval = 5000; /*update interval in milliseconds*/ 
-FILE *fp;
+
 FILE *ft;
 GError *gerror = NULL;
 
@@ -74,15 +74,16 @@ int mk_conf(char *mod) {
 	first_run = 0;
 	if (mod != NULL) {
 		printf("load module : %s\n", mod);
-		command[40] = sprintf(command, "sh pmcputemp.sh %s", module);
+		command[40] = sprintf(command, "bash -c pmcputemp.sh %s", module);
 	} else {
-		command[40] = sprintf(command, "sh pmcputemp.sh");
+		command[40] = sprintf(command, "bash -c pmcputemp.sh");
 	}
 	int ret_val = system(command);
 	return ret_val;
 }
 
 int cpu_temp() {
+	FILE *fp;
 	char temp_file_out[512];
 	int ret_try;
 	int temp_val;
@@ -265,6 +266,7 @@ char *split_string(char *var) {
 
 /* get number of processors */
 unsigned short num_procs() {
+	FILE *fp;
 	char line[512];
 	unsigned short proc_out = 0;
 	fp = fopen(CPU_FILE, "r");
@@ -280,6 +282,7 @@ unsigned short num_procs() {
 }
 
 gchar *get_tt(unsigned short num){
+	FILE *fp;
 	int res1;
 	const char *proc = "CPU";
 	const char *temperature = (_("temperature"));
@@ -344,6 +347,7 @@ void view_sensors() {
 #ifdef HAVE_HELP
 
 void view_help() {
+	FILE *fp;
 	fp = popen("mdview /usr/share/pmcputemp '' '' 'pmcputemp help' &", "r");
 	if (!fp) {
 		fprintf(stderr, "Failed to open help file\n");
