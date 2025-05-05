@@ -1,7 +1,7 @@
 pmcputemp
 ====
 
-a poor man's cpu temperature status icon
+a poor man's cpu temperature gtk status icon
 
 Usage
 -----
@@ -80,7 +80,7 @@ Build
 _run:_
 
 ```
-./configure
+./configure [options]
 ```
 
 then:
@@ -97,11 +97,13 @@ make install
 
 Some basic options to `configure` are provided. Run `configure --help`
 
+DESTDIR is supported.
+
 Depends
 -------
 
 - Cairo
-- Gtk+ >= 2.0
+- Gtk+-2.0 or Gtk+-3.0
 
 Optional
 - [http://www.lm-sensors.org/ lm_sensors]
@@ -115,6 +117,6 @@ Bugs
 - The script may not find your temperature file. If you know your sensor works,
 you can enter the path manually, but make sure there is **no** carriage return.
 
-Please report all bugs here for now or to 01micko AT gmail DOT com.
+Please report all bugs here for now or to 01micko AT gmx DOT com.
 
 Translations welcome.

@@ -2,7 +2,7 @@
 #very simple configure script to generate Makefile
 
 #defaults
-GTKFLAGS=gtk+-2.0
+GTKFLAGS=gtk+-3.0
 PREFIX=/usr/local
 sensors=no
 help=no
@@ -19,7 +19,7 @@ while [ $# != 0 ]; do
 			--enable-sensors*)SENSORS=-DHAVE_SENSORS;sensors=true;;
 			--with-help)HELP=-DHAVE_HELP;help=true;;
 			--disable-menu)MENU='';menu=false;;
-			--with-gtk3)GTKFLAGS=gtk+-3.0;;
+			--with-gtk2)GTKFLAGS=gtk+-2.0;;
 			-h|--help)	echo '
  -h|--help    show this help
  --prefix=	set installation path, default /usr/local
@@ -28,7 +28,7 @@ while [ $# != 0 ]; do
  --enable-sensors	useful if lm_sensors is installed, else ignored
  --with-help	useful if \"mdview\" markdown viewer is installed 
  --disable-menu	useful for low RAM machines - enable-sensors and with-help are ignored 
- --with-gtk3	enables gtk+-3.0 : default is gtk+-2.0 '
+ --with-gtk2	enables gtk+-2.0 : default is gtk+-3.0 '
 				exit;; #
 			
 		esac
@@ -39,6 +39,7 @@ done
 [ -z "$LIBDIR" ] && LIBDIR=${PREFIX}/lib
 [ -z "$MANDIR" ] && MANDIR=${PREFIX}/share/man
 [ -z "$LOCDIR" ] && LOCDIR=${PREFIX}/share/locale
+[ -z "$DOCDIR" ] && DOCDIR=${PREFIX}/share/doc/pmcputemp
 
 for p in `ls po|grep po$` #eg p=fr.po
 do loc=${p%%.*}
@@ -111,6 +112,7 @@ echo "prefix:		"$PREFIX"
 libdir: 	"${LIBDIR}"
 mandir:		"${MANDIR}"
 locdir:		"${LOCDIR}"
+docdir:		"${DOCDIR}"
 sensors:	"$sensors"
 help:		"$help"
 menu		"$menu""
@@ -126,6 +128,7 @@ PREFIX=\$(DESTDIR)$PREFIX
 LIBDIR=\$(DESTDIR)${LIBDIR}
 MANDIR=\$(DESTDIR)${MANDIR}
 LOCDIR=\$(DESTDIR)$LOCDIR
+DOCDIR=\$(DESTDIR)$DOCDIR
 GTKFLAGS=${GTKFLAGS}
 SENSORS=$SENSORS
 CFLAGS=-Wall -pedantic -std=gnu99 -Os -fomit-frame-pointer -ffunction-sections -fdata-sections -fmerge-all-constants -I/usr/include \`pkg-config --libs --cflags \$(GTKFLAGS) cairo\`
@@ -156,8 +159,8 @@ $PO_DIR
 	install -m 0644 pmcputemp.1 \$(MANDIR)/man1/pmcputemp.1
 $HELP_INST
 $PO_INSTALL
-	install -d -m 0755 /usr/share/doc/nls/pmcputemp
-	install -m 0644 po/pmcputemp.pot /usr/share/doc/nls/pmcputemp/ 
+	install -d -m 0755 \$(DOCDIR)/nls/
+	install -m 0644 po/pmcputemp.pot \$(DOCDIR)/nls/
 
 clean:
 	-rm -f *.o pmcputemp po/*gmo
@@ -172,8 +175,7 @@ uninstall:
 	rm -f \$(PREFIX)/bin/pmcputemp.sh
 	rm -f \$(MANDIR)/man1/pmcputemp.1
 $PO_UNINSTALL
-	rm -rf /usr/share/doc/nls/pmcputemp/
-	rm -rf /usr/share/pmcputemp/
+	rm -rf \$(DOCDIR)/pmcputemp/
 
 _MAKE
 else
@@ -183,6 +185,7 @@ PREFIX=\$(DESTDIR)$PREFIX
 LIBDIR=\$(DESTDIR)${LIBDIR}
 MANDIR=\$(DESTDIR)${MANDIR}
 LOCDIR=\$(DESTDIR)$LOCDIR
+DOCDIR=\$(DESTDIR)$DOCDIR
 GTKFLAGS=${GTKFLAGS}
 SENSORS=$SENSORS
 CFLAGS=-Wall -pedantic -std=gnu99 -g -I/usr/include \`pkg-config --libs --cflags \$(GTKFLAGS) cairo\`
@@ -209,8 +212,8 @@ $PO_DIR
 	install -m 0644 pmcputemp.1 \$(MANDIR)/man1/pmcputemp.1
 $HELP_INST
 $PO_INSTALL
-	install -d -m 0755 /usr/share/doc/nls/pmcputemp
-	install -m 0644 po/pmcputemp.pot /usr/share/doc/nls/pmcputemp/ 
+	install -d -m 0755 \$(DOCDIR)/nls/
+	install -m 0644 po/pmcputemp.pot \$(DOCDIR)/nls/
 
 clean:
 	-rm -f *.o pmcputemp po/*gmo
@@ -225,8 +228,7 @@ uninstall:
 	rm -f \$(PREFIX)/bin/pmcputemp.sh
 	rm -f \$(MANDIR)/man1/pmcputemp.1
 $PO_UNINSTALL
-	rm -rf /usr/share/doc/nls/pmcputemp/
-	rm -rf /usr/share/pmcputemp/
+	rm -rf \$(DOCDIR)/pmcputemp/
 
 _MAKE
 fi

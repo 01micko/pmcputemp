@@ -1,5 +1,5 @@
 /* Status icon for cpu temperature */
-/* (c) Mick Amadio 2011-2019 GPL 2 , 01micko.com */
+/* (c) Mick Amadio 2011-2025 GPL 2 , 01micko@gmx.com */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -165,7 +165,7 @@ int paint_icon(char style) {
 	switch (style) {
 		case 'd': /* dark */
 			r1 = 0.1; r2 = 0.4; fr = 0.9;
-			g1 = 0.1; g2 = 0.4; fg = 0.9;
+			g1 = 0.1; g2 = 0.4; fg = 0.9;G_GNUC_END_IGNORE_DEPRECATIONS
 			b1 = 0.1; b2 = 0.4; fb = 0.9;
 			break;
 		case 'l': /* light */
@@ -320,12 +320,16 @@ gboolean Update(gpointer ptr) {
 	x_procs = num_procs();
 	tool_tip = get_tt(x_procs);
 #ifdef HAVE_GTK3
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 	gtk_status_icon_set_tooltip_text(tray_icon, tool_tip);
+G_GNUC_END_IGNORE_DEPRECATIONS
 #else
 	gtk_status_icon_set_tooltip(tray_icon, tool_tip);
 #endif /* HAVE_GTK3 */
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 	temp_pixbuf = gdk_pixbuf_new_from_file(temp_icon,&gerror);
 	gtk_status_icon_set_from_pixbuf(tray_icon,temp_pixbuf);
+G_GNUC_END_IGNORE_DEPRECATIONS
 	g_object_unref(temp_pixbuf);
 	g_free(tooltip_out);
 	return 1;
@@ -375,9 +379,13 @@ void tray_icon_on_menu(GtkStatusIcon *status_icon, guint button,guint activate_t
 		#ifdef HAVE_GTK3
 		iconw = gtk_image_new_from_icon_name("help-contents", GTK_ICON_SIZE_MENU);
 		#else
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 		iconw = gtk_image_new_from_stock(GTK_STOCK_HELP, GTK_ICON_SIZE_MENU);
+G_GNUC_END_IGNORE_DEPRECATIONS
 	    #endif /* HAVE_GTK3 */
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 	    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menuitem), iconw);
+G_GNUC_END_IGNORE_DEPRECATIONS
 	    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
 		g_signal_connect(menuitem, "activate", (GCallback) view_help, status_icon);
 	#endif /* HAVE_HELP */
@@ -394,28 +402,42 @@ void tray_icon_on_menu(GtkStatusIcon *status_icon, guint button,guint activate_t
 		g_signal_connect(menuitem, "activate", (GCallback) view_sensors, status_icon);
 	#endif /* HAVE_SENSORS */
 	
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 	menuitem = gtk_image_menu_item_new_with_label(_("About"));
+G_GNUC_END_IGNORE_DEPRECATIONS
 	#ifdef HAVE_GTK3
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 		iconw = gtk_image_new_from_icon_name("help-about", GTK_ICON_SIZE_MENU);
+G_GNUC_END_IGNORE_DEPRECATIONS
 	#else
 		iconw = gtk_image_new_from_stock(GTK_STOCK_ABOUT, GTK_ICON_SIZE_MENU);
 	#endif /* HAVE_GTK3 */
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
     gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menuitem), iconw);
+G_GNUC_END_IGNORE_DEPRECATIONS
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
 	g_signal_connect(menuitem, "activate", (GCallback) view_popup_menu_about, status_icon);
 	
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 	menuitem = gtk_image_menu_item_new_with_label(_("Quit"));
+G_GNUC_END_IGNORE_DEPRECATIONS
 	#ifdef HAVE_GTK3    
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 	    iconw = gtk_image_new_from_icon_name("application-exit", GTK_ICON_SIZE_MENU);
+G_GNUC_END_IGNORE_DEPRECATIONS
 	#else
 	    iconw = gtk_image_new_from_stock(GTK_STOCK_QUIT, GTK_ICON_SIZE_MENU);
 	#endif /* HAVE_GTK3 */
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
     gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menuitem), iconw);
+G_GNUC_END_IGNORE_DEPRECATIONS
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
     g_signal_connect(menuitem, "activate", (GCallback) quit, status_icon);
 	
 	gtk_widget_show_all(menu);
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 	gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL, button, gtk_get_current_event_time());
+G_GNUC_END_IGNORE_DEPRECATIONS
 }
 #endif /* HAVE_MENU */
 
@@ -424,15 +446,21 @@ static GtkStatusIcon *create_tray_icon() {
 		sleep(1);
 		first_run = 1;
 	}
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 	tray_icon = gtk_status_icon_new();
+G_GNUC_END_IGNORE_DEPRECATIONS
 	#ifdef HAVE_MENU
 		g_signal_connect(G_OBJECT(tray_icon), "popup-menu", G_CALLBACK(tray_icon_on_menu), NULL);
 	#endif /* HAVE_MENU */
         
 	temp_pixbuf = gdk_pixbuf_new_from_file(temp_icon,&gerror);
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 	gtk_status_icon_set_from_pixbuf(tray_icon,temp_pixbuf);
+G_GNUC_END_IGNORE_DEPRECATIONS
 	g_object_unref(temp_pixbuf);						   
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 	gtk_status_icon_set_visible(tray_icon, TRUE);
+G_GNUC_END_IGNORE_DEPRECATIONS
 
 	return tray_icon;
 }
