@@ -391,13 +391,17 @@ G_GNUC_END_IGNORE_DEPRECATIONS
 	#endif /* HAVE_HELP */
 	
 	#ifdef HAVE_SENSORS
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 		menuitem = gtk_image_menu_item_new_with_label(_("Info"));
+G_GNUC_END_IGNORE_DEPRECATIONS
 		#ifdef HAVE_GTK3
 		iconw = gtk_image_new_from_icon_name("dialog-information", GTK_ICON_SIZE_MENU);
 		#else
 		iconw = gtk_image_new_from_stock(GTK_STOCK_INFO, GTK_ICON_SIZE_MENU);
 	    #endif /* HAVE_GTK3 */
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 	    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menuitem), iconw);
+G_GNUC_END_IGNORE_DEPRECATIONS
 	    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
 		g_signal_connect(menuitem, "activate", (GCallback) view_sensors, status_icon);
 	#endif /* HAVE_SENSORS */

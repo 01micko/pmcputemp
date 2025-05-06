@@ -54,10 +54,11 @@ int sensor_gui(gint argc, gchar *argv[]) {
 	gchar *heading = (_("Output from lm_sensors"));
 	
 	label_head = gtk_label_new (heading);
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 	gtk_widget_modify_font (label_head, sans_font);
 	label = gtk_label_new (message);
 	gtk_widget_modify_font (label, mono_font);
-	gtk_label_set_line_wrap(GTK_LABEL(label_head), TRUE);
+G_GNUC_END_IGNORE_DEPRECATIONS	gtk_label_set_line_wrap(GTK_LABEL(label_head), TRUE);
 	gtk_box_pack_start (GTK_BOX (box), label_head, TRUE, TRUE, 5);
 	gtk_widget_show(label_head);
 	gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
