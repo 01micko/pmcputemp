@@ -49,7 +49,7 @@ default coloured icon shows with the 5 second delay.
 
 It will attempt to generate a config directory
 and temporary storage at `$HOME/.config/pmcputemp` at first
-run. See the script `pmcputemp.sh`. In this directory, `pmcputemprc` should be 
+run. See the script `pmcputemp-sh`. In this directory, `pmcputemprc` should be 
 generated with the path to the cpu temperature file. In the case of multicore
 processors, the first core is the one which is sourced. This is a basic limitation
 of the program, after all, poor men and women may find it difficult to procure

@@ -74,9 +74,9 @@ int mk_conf(char *mod) {
 	first_run = 0;
 	if (mod != NULL) {
 		printf("load module : %s\n", mod);
-		command[40] = sprintf(command, "bash -c pmcputemp.sh %s", module);
+		command[40] = sprintf(command, "bash -c pmcputemp-sh %s", module);
 	} else {
-		command[40] = sprintf(command, "bash -c pmcputemp.sh");
+		command[40] = sprintf(command, "bash -c pmcputemp-sh");
 	}
 	int ret_val = system(command);
 	return ret_val;
